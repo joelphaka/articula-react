@@ -1,38 +1,178 @@
-.App {
-  text-align: center;
+html, body {
+  height: 100%;
+  position: relative;
+  /*font-size: 14px;*/
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+#app, #root {
+  height: 100%;
+  position: relative;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.container, .container-fluid {
+  min-height: 100%;
+  padding-bottom: 40px;
+  position: relative;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.navbar.fixed-top + .container,
+.navbar.fixed-top + .container-fluid
+{
+  margin-top: 56px;
+  padding-top: 25px;
 }
 
-.App-link {
-  color: #61dafb;
+.float-container {
+  display: block;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.float-container > .float-left {
+  float: left;
+}
+
+.float-container > .float-right {
+  float: right;
+}
+
+.float-container:after {
+  content: "";
+  display: block;
+  clear: both;
+}
+
+
+.top-30-pc {
+  top: 30% !important;
+}
+
+.table-like > .row {
+  padding: 8px 0;
+  line-height: 1.42857143;
+  vertical-align: top;
+  margin: 0;
+}
+
+.table-like > .row:not(:last-child) {
+  border-bottom: 1px solid #ddd;
+}
+
+.table-like > .row > * {
+  padding: 0;
+}
+
+.table-like > .row > *:first-child {
+  font-size: 1em;
+  font-weight: 600;
+}
+
+.box-shadow {
+  box-shadow: 0 1px 0 0 rgba(10, 10, 10, 0.2), 0 0 5px 0 rgba(10, 10, 10, 0.19);
+}
+
+.center-vertical {
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+.center-horizontal {
+  left: 50% !important;
+  -webkit-transform: translateX(-50%) !important;
+  -ms-transform: translateX(-50%) !important;
+  transform: translateX(-50%) !important;
+}
+
+.center-relative {
+  top: 50% !important;
+  left: 50% !important;
+  -webkit-transform: translate(-50%, -50%) !important;;
+  -ms-transform: translate(-50%, -50%) !important;;
+  transform: translate(-50%,-50%) !important;;
+
+}
+
+.btn {
+  padding: .25rem .70rem
+}
+
+.no-underline {
+  text-decoration: none !important;
+}
+
+.no-outline {
+  outline: none !important;
+}
+
+.overflow-ellipsis {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.weight-bold-on-hover:hover {
+  font-weight: bold;
+}
+
+.weight-600-on-hover:hover {
+  font-weight: 600;
+}
+
+.weight-400-on-hover:hover {
+  font-weight: 400;
+}
+
+.text-small {
+  font-size: 0.875rem;
+}
+
+pre.white-space-pre {
+  white-space: pre;
+}
+
+pre.white-space-pre-wrap {
+  white-space: pre-wrap;
+}
+
+pre.white-space-pre-line {
+  white-space: pre-line;
+}
+
+.overflow-wrap {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+.modal-wrapper {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 1px solid #ccc;
+  overflow: auto;
+  border-radius: 4px;
+  outline: none;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.ReactModal__Overlay {
+  opacity: 0;
+  transition: opacity 500ms ease-in-out;
+}
+
+.ReactModal__Overlay--after-open {
+  opacity: 1;
+}
+
+.ReactModal__Overlay--before-close {
+  opacity: 0;
 }

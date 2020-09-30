@@ -1,0 +1,17 @@
+.loginForm {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 384px;
+    float: none !important;
+    position: relative;
+}
+.loginForm h1.main-header,
+.loginForm h2.main-header {
+    font-variant: small-caps;
+}
+
+@media (max-width: 640px) {
+    .loginForm > .form-content {
+        max-width: none;
+    }
+}

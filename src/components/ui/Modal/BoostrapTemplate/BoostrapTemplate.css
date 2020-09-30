@@ -1,0 +1,15 @@
+.modalHeader .close {
+    align-self: center !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    outline: none;
+}
+
+.modalHeader {
+    padding: 6px 16px !important;
+    border-bottom: 0 !important
+}
+
+.modalFooter {
+    padding:.25rem
+}
