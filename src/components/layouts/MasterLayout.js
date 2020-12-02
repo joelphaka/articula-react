@@ -1,11 +1,12 @@
 import React, {useState} from 'react';
-import NavBar from "./partials/NavBar";
+import NavBar from "./NavBar";
 import _ from 'lodash'
-import Sidebar from "./partials/Sidebar";
+import Sidebar from "./Sidebar";
 import Spinner from "../ui/Spinner";
 
-function MasterLayout({children, isLoading}) {
+function MasterLayout({children}) {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
+    const [isLoading, setLoading] = useState(false);
 
     return (
         <React.Fragment>
@@ -24,9 +25,8 @@ function MasterLayout({children, isLoading}) {
                                 <Spinner/>
                             </div>
                         </div>
-                    ):  _.isFunction(children) ? children.call() : children
+                    ):  _.isFunction(children) ? children() : children
             }
-            { /**_.isFunction(children) ? children.call() : children **/}
         </React.Fragment>
     );
 }

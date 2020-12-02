@@ -1,34 +1,51 @@
-import React, {useEffect, useState} from "react";
-import InfiniteScroller from "react-infinite-scroller";
+import React, {useEffect} from "react";
 import {isFunction} from 'lodash'
 import Spinner from "../ui/Spinner";
-import ''
-import VisibilitySensor from "react-visibility-sensor/visibility-sensor";
+import {useInView} from "react-intersection-observer";
+import ListLoader from "./ListLoader";
+import {useCurrentEffect} from "use-current-effect";
 
 function InfiniteScroll(props) {
     const {
         onLoadMore,
-        isLoading,
+        isFetching,
+        dataLength,
         hasMore,
         loader,
-        className='list-group',
-        children
+        children,
+        ...rest
     } = props;
 
-    function onVisibilityChange(isVisible) {
+    const {ref, inView} = useInView()
+
+    useCurrentEffect((isCurrent) => {
         if (hasMore &&
-            isVisible &&
-            !isLoading &&
+            inView &&
+            !isFetching &&
             isFunction(onLoadMore)
+            && isCurrent()
         ) {
             onLoadMore();
         }
-    }
+
+    }, [inView, hasMore, isFetching])
 
     return (
         <React.Fragment>
-            <VisibilitySensor onChange={onVisibilityChange}>
-            </VisibilitySensor>
+            <div {...rest}>
+                {isFunction(children) ? children() : children}
+                {
+                    !isFetching &&
+                    <div ref={ref} style={{backgroundColor: 'transparent', height: '1px'}}>
+                    </div>
+                }
+            </div>
+            {
+                isFetching && (
+                    loader ||
+                    <ListLoader/>
+                )
+            }
         </React.Fragment>
 
     )

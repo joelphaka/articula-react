@@ -1,10 +1,16 @@
-import {combineReducers} from 'redux'
-import authReducer from './auth'
-import uiReducer from './ui'
+import {combineReducers} from 'redux';
+import authReducer from './authReducer';
+import avatarReducer from "./avatarReducer"
+import uiReducer from './uiReducer';
+import articleReducer from './articleReducer'
+import profileReducer from './profileReducer'
 import {logout} from "./common";
 
 const combineReducer = combineReducers({
     auth: authReducer,
+    avatar: avatarReducer,
+    article: articleReducer,
+    profile: profileReducer,
     ui: uiReducer,
 })
 

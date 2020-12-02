@@ -8,8 +8,10 @@ export function fetchProfile(username) {
     return axios.get(`${API_PROFILE}/${username}`).then(({data}) => data);
 }
 
-export function fetchUserArticles(username) {
-    return axios.get(`${API_TIMELINE_ARTICLES}/${username}`).then(({data}) => data);
+export function fetchUserArticles(username, query = {}) {
+    return axios
+        .get(`${API_TIMELINE_ARTICLES}/${username}`, {params: query})
+        .then(({data}) => data);
 }
 
 export default {

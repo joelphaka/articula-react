@@ -1,0 +1,24 @@
+.articleItem {
+    border-top-width: 1px !important;
+    margin-bottom: 15px;
+    background-repeat: no-repeat;
+}
+
+.article-cover {
+    height: 132px;
+    width: 100%;
+    object-fit: cover;
+    border-top-right-radius: 0;
+}
+@media (max-width: 767px) {
+    .article-cover {
+        border-top-left-radius: 0;
+    }
+}
+@media (min-width: 768px) {
+    .article-cover {
+        height: 100%;
+        width: 132px;
+        border-bottom-right-radius: 0;
+    }
+}

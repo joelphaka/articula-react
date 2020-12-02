@@ -1,15 +1,14 @@
 import React from "react";
-import HomePage from '../pages/home/HomePage/HomePage'
-import WelcomePage from '../pages/home/WelcomePage/WelcomePage'
-import LoginPage from '../pages/auth/LoginPage/LoginPage'
-import RegisterPage from '../pages/auth/RegisterPage/RegisterPage'
-import AboutPage from "../pages/home/AboutPage/AboutPage";
-import AuthRoute from "./AuthRoute";
-import GuestRoute from "./GuestRoute";
-import {Route} from "react-router-dom";
+import HomePage from '../pages/home/HomePage'
+import WelcomePage from '../pages/home/WelcomePage'
+import LoginPage from '../pages/auth/LoginPage'
+import RegisterPage from '../pages/auth/RegisterPage'
+import AboutPage from "../pages/home/AboutPage";
 import Logout from "../components/auth/Logout";
-import ArticlePage from "../pages/article/ArticlePage/ArticlePage";
+import ArticlePage from "../pages/article/ArticlePage";
 import NoFound from "../components/error/NotFound";
+import ProfilePage from "../pages/profile/ProfilePage";
+import UserArticlesPage from "../pages/profile/UserArticlesPage";
 
 const routes =  [
     {
@@ -22,6 +21,18 @@ const routes =  [
         path: '/article/:id',
         component: ArticlePage,
         title: "ArticlePage",
+        requiresAuth: true,
+    },
+    {
+        path: '/u/:username?',
+        component: ProfilePage,
+        title: "Profile",
+        requiresAuth: true,
+    },
+    {
+        path: '/u/:username/articles',
+        component: UserArticlesPage,
+        title: "User Articles",
         requiresAuth: true,
     },
     {
@@ -62,18 +73,4 @@ const routes =  [
 ];
 
 export default routes;
-
-export function RouteRenderer({route}) {
-    if (route.requiresAuth) {
-        return <AuthRoute {...route}/>
-    } else {
-        if (route.isGuest) {
-
-            return <GuestRoute {...route} exact/>
-        } else {
-            return <Route {...route} exact/>
-        }
-    }
-}
-
 

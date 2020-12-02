@@ -1,0 +1,14 @@
+.account-dropdown-toggle::after {
+    content: '';
+    display: none;
+}
+.account-dropdown-menu {
+    padding-top: 0;
+}
+
+@media (min-width: 768px) {
+    .account-dropdown-menu {
+        right: -15px;
+        top: 48px;
+    }
+}

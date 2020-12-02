@@ -6,7 +6,7 @@
  const [page, setPage] = useState(1);
  const [lastPage, setLastPage] = useState(1);
  const [hasMore, setHasMore] = useState(false);
- const [isLoading, setLoading] = useState(false);
+ const [isFetching, setLoading] = useState(false);
 
  useEffect(() => {
         console.log(page)

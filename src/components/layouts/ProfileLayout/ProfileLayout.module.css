@@ -1,0 +1,63 @@
+.wrapper {
+    position: relative;
+    height: 100%;
+    padding-left: 250px;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+.wrapper > .sidebar {
+    max-width:250px;
+    min-width:250px;
+    position: fixed;
+    height: 100%;
+    left: 0;
+    padding-top: 40px;
+    padding-bottom: 40px;
+    background-color: #2b2f33;
+    z-index: 100;
+    display: block;
+}
+.wrapper > .sidebar .profile-name {
+    font-size: 2em;
+    font-weight: 300;
+}
+.wrapper > .content {
+    /*background-color: beige;*/
+    padding-top: 20px;
+    padding-bottom: 40px;
+    position: relative;
+    height: 100%;
+}
+.sidebar-toggle {
+    z-index: 200;
+    border-radius: 100%;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.sidebar-toggle > * {
+    flex: 1;
+}
+.camera-btn {
+
+}
+
+@media (max-width: 767px) {
+    .wrapper {
+        /*height: auto;*/
+        height: 100%;
+        padding-left: 0 !important;
+    }
+    .wrapper > .sidebar {
+        position: static;
+        max-width: none;
+        min-width: auto;
+        height: auto;
+        padding-top: 25px;
+        padding-bottom: 20px;
+        display: block !important;
+    }
+    .sidebar-toggle { display: none }
+}

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Formik, Form, Field} from 'formik'
 import FormControl from "../../components/ui/Form/FormControl";
 import * as Yup from 'yup'
@@ -8,6 +8,9 @@ import {formatError, formatValidationErrors} from "../../lib/utils";
 import {useHistory} from "react-router-dom";
 import {authService} from "../../services/api";
 import Spinner from "../ui/Spinner";
+import {useCurrentCallback} from "use-current-effect";
+import {useDispatch, useSelector} from "react-redux";
+import {loginUser} from "../../store/authReducer";
 
 const {
     MESSAGE_REQUIRED,
@@ -50,21 +53,35 @@ const initialValues = {
 function RegisterForm({className = ''}) {
     const [error, setError] = useState(null);
     const history = useHistory();
+    const dispatch = useDispatch();
+    const auth = useSelector(state => state.auth);
+    const didUpdateRef = useRef(false);
 
-    async function handleSubmit (values, form) {
+    useEffect(() => {
+        if (didUpdateRef.current) {
+            if (auth.error) history.replace('/login')
+        } else didUpdateRef.current = true;
+    }, [auth.error])
+
+
+    const handleSubmit = useCurrentCallback((isCurrent => async (values, form) => {
         try {
-            const user = await authService.register(values);
-            history.replace('/login')
+            await authService.register(values);
+            const {email, password} = values;
+            dispatch(loginUser({email, password}));
 
         } catch (e) {
             const responseError = formatError(e);
-            setError(responseError);
 
-            if (responseError.isValidation) {
-                form.setErrors(formatValidationErrors(responseError.errors));
+            if (isCurrent()) {
+                setError(responseError);
+
+                if (responseError.isValidation) {
+                    form.setErrors(responseError.errors);
+                }
             }
         }
-    }
+    }))
 
     return (
         <Formik
@@ -74,7 +91,7 @@ function RegisterForm({className = ''}) {
             {
                 (formik) => {
                     return (
-                        <Form className={`position-relative${className? ` ${className}` : ''}`}>
+                        <Form className={`position-relative${className ? ` ${className}` : ''}`}>
                             {
                                 error && !error.isValidation &&
                                 <div className="alert alert-danger text-center mb-3" role="alert">
@@ -87,14 +104,14 @@ function RegisterForm({className = ''}) {
                                     label='First Name'
                                     placeholder='First Name'
                                     className='form-group col-md-6 col-sm-6'
-                                    disabled={formik.isSubmitting}
+                                    disabled={formik.isSubmitting || auth.isLoggingIn}
                                 />
                                 <FormControl
                                     name='last_name'
                                     label='Last Name'
                                     placeholder='Last Name'
                                     className='form-group col-md-6 col-sm-6'
-                                    disabled={formik.isSubmitting}
+                                    disabled={formik.isSubmitting || auth.isLoggingIn}
                                 />
                             </div>
                             <div className="row">
@@ -104,7 +121,7 @@ function RegisterForm({className = ''}) {
                                     placeholder='Email'
                                     type='email'
                                     className='form-group col-md-12 col-sm-12'
-                                    disabled={formik.isSubmitting}
+                                    disabled={formik.isSubmitting || auth.isLoggingIn}
                                 />
                             </div>
                             <div className="row">
@@ -114,7 +131,7 @@ function RegisterForm({className = ''}) {
                                     placeholder='Password'
                                     type='password'
                                     className='form-group col-md-12 col-sm-12'
-                                    disabled={formik.isSubmitting}
+                                    disabled={formik.isSubmitting || auth.isLoggingIn}
                                 />
                             </div>
                             <div className="row">
@@ -124,7 +141,7 @@ function RegisterForm({className = ''}) {
                                     placeholder='Confirm Password'
                                     type='password'
                                     className='form-group col-md-12 col-sm-12'
-                                    disabled={formik.isSubmitting}
+                                    disabled={formik.isSubmitting || auth.isLoggingIn}
                                 />
                             </div>
                             <div className="row my-3">
@@ -136,7 +153,7 @@ function RegisterForm({className = ''}) {
                                                 name="accept_terms"
                                                 type='checkbox'
                                                 className="form-check-input"
-                                                disabled={formik.isSubmitting}
+                                                disabled={formik.isSubmitting || auth.isLoggingIn}
                                             />
                                             <span style={{fontWeight: 'normal'}}>
                                     By accepting the terms and condition you agree with Articula.
@@ -149,12 +166,12 @@ function RegisterForm({className = ''}) {
                             <button
                                 type='submit'
                                 className='btn btn-primary btn-block'
-                                disabled={!formik.isValid || formik.isSubmitting}>
+                                disabled={!formik.isValid || formik.isSubmitting || auth.isLoggingIn}>
                                 Register
                             </button>
                             {
-                                formik.isSubmitting &&
-                                <Spinner wrapperClass='center-relative position-absolute'/>
+                                (formik.isSubmitting  || auth.isLoggingIn) &&
+                                <Spinner className='center-relative position-absolute'/>
                             }
                         </Form>
                     )

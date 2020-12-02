@@ -1,31 +1,22 @@
 import React from 'react';
 import {
-    BrowserRouter as Router,
     Switch,
     Route,
 } from "react-router-dom";
 import routes from "./routes";
 import './App.css';
-import GuestRoute from "./routes/GuestRoute";
-import AuthRoute from "./routes/AuthRoute";
+import RoutedComponent from "./routes/RoutedComponent";
 
 function App() {
     return (
-        <Router>
-            <Switch>
-                {routes.map((route, index) => {
-                    if (route.requiresAuth) {
-                        return <AuthRoute key={index} {...route} exact/>
-                    } else {
-                        if (route.isGuest) {
-                            return <GuestRoute key={index} {...route} exact/>
-                        } else {
-                            return <Route key={index} {...route} exact/>
-                        }
-                    }
-                })}
-            </Switch>
-        </Router>
+        <Switch>
+            {routes.map((route) => (
+                    <Route key={route.path} path={route.path} isGreat={true} exact>
+                        {(routeProps) => (<RoutedComponent route={route} {...routeProps}/>)}
+                    </Route>
+                )
+            )}
+        </Switch>
     );
 }
 

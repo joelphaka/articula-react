@@ -1,4 +1,4 @@
-import httpService from '../http.service'
+import axios from 'axios'
 
 import {
     API_AUTH_LOGIN,
@@ -8,19 +8,19 @@ import {
 } from './paths'
 
 export function login(credentials) {
-    return httpService.post(API_AUTH_LOGIN, credentials).then(({data}) => data);
+    return axios.post(API_AUTH_LOGIN, credentials).then(({data}) => data);
 }
 
-export function register(data) {
-    return httpService.post(API_AUTH_REGISTER, data).then(({data}) => data)
+export function register(details) {
+    return axios.post(API_AUTH_REGISTER, details).then(({data}) => data)
 }
 
 export function logout() {
-    return httpService.post(API_AUTH_LOGOUT);
+    return axios.post(API_AUTH_LOGOUT);
 }
 
 export function fetchAuthUser() {
-    return httpService.get(API_AUTH_USER).then(({data: user}) => user);
+    return axios.get(API_AUTH_USER).then(({data: user}) => user);
 }
 
 export default {
