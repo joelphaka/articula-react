@@ -9,22 +9,21 @@ import {useSelector} from "react-redux";
 
 function ArticleItem(props) {
     const {article, onClick} = props;
-    // const {likeError, currentArticle} = useSelector(state => state.article.profile);
-    // `http://192.168.43.20/articula/public/images/avatars/zr2O965Zqx4AXGKQPP3WL1VmBybdQ0Ya.png`
-
     return (
         <React.Fragment>
             <div className="card mb-3" data-id={article.id}>
                 <div className="d-flex flex-column flex-md-row no-gutters">
                     {
                         !!article.has_cover_photo &&
-                        <div className="flex-grow-0 order-1 order-md-0">
+                        <Link
+                            to={`/article/${article.id}`}
+                            className="d-block flex-grow-0 order-1 order-md-0">
                             <img
                                 src={article.cover_photo}
                                 className={`card-img ${classes['article-cover']}`}
                                 alt={article.title}
                             />
-                        </div>
+                        </Link>
                     }
                     <div className="flex-grow-1 order-0 order-md-1">
                         <div className="card-body p-2 px-3 d-flex flex-column">
