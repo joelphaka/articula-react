@@ -142,6 +142,9 @@ label.btn.file-btn {
 .no-outline {
   outline: none !important;
 }
+.no-box-shadow, .no-box-shadow:hover,.no-box-shadow:focus {
+  box-shadow: none !important;
+}
 .overflow-ellipsis {
   text-overflow: ellipsis;
   overflow: hidden;

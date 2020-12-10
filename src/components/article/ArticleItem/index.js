@@ -5,13 +5,18 @@ import {isFunction} from 'lodash'
 import classes from './ArticleItem.module.css'
 import LikeButton from "../../like/LikeButton";
 import UserAvatar from "../../avatar/UserAvatar";
-import {useSelector} from "react-redux";
+import ItemButton from "../../ui/ItemButton";
 
 function ArticleItem(props) {
     const {article, onClick} = props;
     return (
         <React.Fragment>
-            <div className="card mb-3" data-id={article.id}>
+            <div
+                className="card mb-3"
+                data-id={article.id}
+                onClick={(e) => {
+                    if (isFunction(onClick)) onClick(e, article);
+                }}>
                 <div className="d-flex flex-column flex-md-row no-gutters">
                     {
                         !!article.has_cover_photo &&
@@ -51,17 +56,14 @@ function ArticleItem(props) {
                             </div>
                             <div className='flex-grow-0 d-flex align-items-center'>
                                 <LikeButton article={article}/>
-                                &nbsp;&bull;
-                                <button
-                                    style={{padding:'0 0.4em'}}
-                                    className='btn'
-                                >
+                                &nbsp;&bull;&nbsp;
+                                <ItemButton className='no-box-shadow' style={{cursor: 'auto'}}>
                                     <i className='fa fa-eye'></i>
                                     &nbsp;
                                     <span className='text-small'>
                                         {article.views || 'No views'}
                                     </span>
-                                </button>
+                                </ItemButton>
                             </div>
                         </div>
                     </div>
