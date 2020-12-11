@@ -15,6 +15,7 @@ const initialState = {
     articles: [],
     meta: defaultPaginationMeta,
     isFetching: false,
+    isFiltering: false,
     lastFetchTime: null,
     fetchError: null,
     profile: {
@@ -74,8 +75,13 @@ const articleSlice = createSlice({
                 })]
             }
         },
-        articlesFiltered: (state, {payload}) => {
+        articlesFilteringBegan: (state, {payload}) =>{
             state.currentFilter = payload;
+            state.isFiltering = true;
+
+        },
+        articlesFiltered: (state) => {
+            state.isFiltering = false;
         },
         ////
 
@@ -101,8 +107,13 @@ const articleSlice = createSlice({
                 })]
             }
         },
-        profileArticlesFiltered: (state, {payload}) => {
+        profileArticlesFilteringBegan: (state, {payload}) =>{
             state.profile.currentFilter = payload;
+            state.profile.isFiltering = true;
+
+        },
+        profileArticlesFiltered: (state, {payload}) => {
+            state.profile.isFiltering = false;
         },
         profileArticlesEmptied: state => {
             state.profile = initialState.profile;
@@ -206,9 +217,14 @@ const {
 // Export the reducer, either as a default or named export
 export default reducer
 
-export const {articlesFiltered, profileArticlesFiltered} = actions;
+const {
+    articlesFiltered,
+    articlesFilteringBegan,
+    profileArticlesFilteringBegan,
+    profileArticlesFiltered
+} = actions;
 
-export const loadArticles = (query) => async dispatch => {
+export const loadArticles = (query) => async (dispatch, getState) => {
     try {
         dispatch(articlesFetchBegan());
         const {data, meta} = await articleService.fetchArticles(query);
@@ -218,10 +234,15 @@ export const loadArticles = (query) => async dispatch => {
         dispatch(articlesFetchFailed(formatError(e)));
     } finally {
         dispatch(articlesFetchEnded());
+        if (getState().article.isFiltering) {
+            console.log(getState())
+
+            dispatch(articlesFiltered());
+        }
     }
 }
 
-export const loadUserArticles = (username, query) => async dispatch => {
+export const loadUserArticles = (username, query) => async (dispatch, getState) => {
     try {
         dispatch(profileArticlesFetchBegan());
         const {data, meta} = await profileService.fetchUserArticles(username, query);
@@ -231,6 +252,9 @@ export const loadUserArticles = (username, query) => async dispatch => {
         dispatch(profileArticlesFetchFailed(formatError(e)));
     } finally {
         dispatch(profileArticlesFetchEnded());
+        if (getState().article.profile.isFiltering) {
+            dispatch(profileArticlesFiltered());
+        }
     }
 }
 
@@ -268,6 +292,14 @@ export const likeOrUnlikeArticle = (article) => async dispatch => {
     } finally {
         dispatch(likeEnded());
     }
+}
+
+export const filterArticles = (filterValue) => (dispatch, getState) => {
+    dispatch(articlesFilteringBegan(filterValue));
+}
+
+export const filterProfileArticles = (filterValue) => dispatch => {
+    dispatch(profileArticlesFilteringBegan(filterValue));
 }
 
 /*

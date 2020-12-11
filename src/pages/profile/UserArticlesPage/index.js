@@ -1,19 +1,21 @@
 import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from "react-redux";
 import {useCurrentEffect} from "use-current-effect";
-import {profileArticlesFiltered, loadUserArticles} from "../../../store/articleReducer";
+import {loadUserArticles, filterProfileArticles} from "../../../store/articleReducer";
 import ArticleList from "../../../components/article/ArticleList";
 import withProfileLayout from "../../../components/layouts/withProfileLayout";
 import Spinner from "../../../components/ui/Spinner";
 import useWindowSize from "../../../hooks/useWindowSize";
 import useComponentDidUpdate from "../../../hooks/useComponentDidUpdate";
 import SimpleFilter from "../../../components/ui/SimpleFilter";
+import ListLoader from "../../../components/ui/ListLoader";
 
 function UserArticlesPage({profile: {user}}) {
     const {
         articles,
         meta,
         isFetching,
+        isFiltering,
         currentFilter
     } = useSelector(state => state.article.profile);
     const {filters} = useSelector(state => state.article);
@@ -49,20 +51,26 @@ function UserArticlesPage({profile: {user}}) {
                                         filters={filters}
                                         disabled={isFetching}
                                         onFilter={filter => {
-                                            dispatch(profileArticlesFiltered(filter));
+                                            dispatch(filterProfileArticles(filter));
                                             setQuery(q => Object({...q, page: 1, ...filter.sort}));
                                         }}
                                     />
                                 </div>
-                                <ArticleList
-                                    articles={articles}
-                                    hasMore={meta.last_page > meta.current_page}
-                                    isFetching={isFetching}
-                                    page={query.page}
-                                    onLoadMore={() => {
-                                        setQuery(q => Object({...q, page: q.page + 1}))
-                                    }}
-                                />
+                                {
+                                    isFiltering
+                                        ? <ListLoader/>
+                                        : (
+                                            <ArticleList
+                                                articles={articles}
+                                                hasMore={meta.last_page > meta.current_page}
+                                                isFetching={isFetching}
+                                                page={query.page}
+                                                onLoadMore={() => {
+                                                    setQuery(q => Object({...q, page: q.page + 1}))
+                                                }}
+                                            />
+                                        )
+                                }
                             </React.Fragment>
                         ) : (
                             isFetching ? (
