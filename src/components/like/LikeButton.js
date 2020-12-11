@@ -9,7 +9,7 @@ function LikeButton({className, article}) {
 
     return (
         <ItemButton
-            className={className}
+            className={`${className?`${className} `:''}item-button`}
             disabled={isLiking && currentArticle?.id===article.id}
             onClick={() => {
                 if (!isLiking) dispatch(likeOrUnlikeArticle(article));

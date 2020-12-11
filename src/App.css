@@ -211,6 +211,13 @@ pre.white-space-pre-line {
   font-size: 1em;
   font-weight: 600;
 }
+.item-button:hover, .item-button:focus {
+  box-shadow: none !important;
+  border-radius: 45%;
+  padding: 2px 6px;
+  background-color: #f7f7f7;
+  border: 1px solid #dedede;
+}
 .nav-pills-tabs {
   display: flex;
   flex-flow: row;
