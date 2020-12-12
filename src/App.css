@@ -218,6 +218,9 @@ pre.white-space-pre-line {
   background-color: #f7f7f7;
   border: 1px solid #dedede;
 }
+.image-view > *:last-child {
+  position: relative;
+}
 .nav-pills-tabs {
   display: flex;
   flex-flow: row;

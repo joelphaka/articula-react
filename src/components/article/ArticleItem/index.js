@@ -6,6 +6,7 @@ import classes from './ArticleItem.module.css'
 import LikeButton from "../../like/LikeButton";
 import UserAvatar from "../../avatar/UserAvatar";
 import ItemButton from "../../ui/ItemButton";
+import ImageView from "../../ui/ImageView";
 
 function ArticleItem(props) {
     const {article, onClick} = props;
@@ -23,7 +24,7 @@ function ArticleItem(props) {
                         <Link
                             to={`/article/${article.id}`}
                             className="d-block flex-grow-0 order-1 order-md-0">
-                            <img
+                            <ImageView
                                 src={article.cover_photo}
                                 className={`card-img ${classes['article-cover']}`}
                                 alt={article.title}

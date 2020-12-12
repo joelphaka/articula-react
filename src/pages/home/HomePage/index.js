@@ -7,7 +7,6 @@ import withMasterLayout from "../../../components/layouts/withMasterLayout";
 import SimpleFilter from "../../../components/ui/SimpleFilter";
 import useComponentDidUpdate from "../../../hooks/useComponentDidUpdate";
 import useWindowSize from "../../../hooks/useWindowSize";
-import Image from "../../../components/ui/Image"
 import ListLoader from "../../../components/ui/ListLoader";
 
 

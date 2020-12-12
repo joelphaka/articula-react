@@ -7,8 +7,10 @@
 .article-cover {
     height: 132px;
     width: 100%;
-    object-fit: cover;
     border-top-right-radius: 0;
+}
+img.article-cover, .article-cover > img {
+    object-fit: cover;
 }
 @media (max-width: 767px) {
     .article-cover {

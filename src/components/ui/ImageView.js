@@ -17,6 +17,9 @@ function ImageView(props) {
         onError,
         onClick,
         errorView,
+        hideOnError,
+        isRounded,
+        children,
         ...rest
     } = props;
 
@@ -30,7 +33,7 @@ function ImageView(props) {
     useComponentDidUpdate(isCurrent => {
         if (!!container.current) {
             const element = container.current;
-            const newSize = (element.offsetWidth < element.offsetHeight ? element.offsetWidth : element.offsetHeight) * 0.5;
+            const newSize = (element.offsetWidth < element.offsetHeight ? element.offsetWidth : element.offsetHeight) * (isRounded ? 1 : 0.5);
 
             setTimeout(() => {
                 if (isCurrent()) setLoaderSize(newSize);
@@ -55,8 +58,8 @@ function ImageView(props) {
     return (
         <React.Fragment>
             <div
-                className={`${className?`${className} `:''}position-relative`}
-                style={style}
+                className={`${className?`${className} `:''}image-view position-relative`}
+                style={{borderRadius: isRounded ? '100%':'0',...style}}
                 ref={container}>
                 {
                     !hasError &&
@@ -66,9 +69,10 @@ function ImageView(props) {
                         className={`${imageClass?`${imageClass} `:''}d-block position-absolute right-left-top-bottom-0`}
                         style={{
                             ...imageStyle,
+                            borderRadius: isRounded ? '100%':'0',
                             width: '100%',
                             height:'100%',
-                            visibility: 'hidden'
+                            visibility: 'hidden',
                         }}
                         onLoad={handleLoad}
                         onError={handleError}
@@ -86,13 +90,12 @@ function ImageView(props) {
                             width: `${loaderSize}px`,
                             height: `${loaderSize}px`,
                             borderRadius: '100%',
-                            zIndex: '100'
                         }}
                         onLoad={({currentTarget}) => {
                             const p = $(currentTarget).parent()[0];
 
                             if (p) {
-                                const size = (p.offsetWidth < p.offsetHeight ? p.offsetWidth : p.offsetHeight) * 0.5
+                                const size = (p.offsetWidth < p.offsetHeight ? p.offsetWidth : p.offsetHeight) * (isRounded ? 1 : 0.5)
                                 currentTarget.style.width = `${size}px`;
                                 currentTarget.style.height = `${size}px`;
                             }
@@ -101,7 +104,7 @@ function ImageView(props) {
                     />
                 }
                 {
-                    hasError &&
+                    hasError && !hideOnError &&
                     <React.Fragment>
                         {
                             errorView
@@ -109,12 +112,16 @@ function ImageView(props) {
                                 : (
                                     <div
                                         className='h-100 w-100 bg-secondary text-light position-relative'
+                                        style={{borderRadius: isRounded ? '100%':'0'}}
                                         onClick={onClick}>
                                         <div className='position-absolute center-relative font-weight-bold'>Offline</div>
                                     </div>
                                 )
                         }
                     </React.Fragment>
+                }
+                {
+                    (isLoaded || (hasError && !hideOnError)) && children
                 }
             </div>
         </React.Fragment>
