@@ -10,6 +10,8 @@ import ImageView from "../../ui/ImageView";
 
 function ArticleItem(props) {
     const {article, onClick} = props;
+
+
     return (
         <React.Fragment>
             <div
@@ -22,7 +24,7 @@ function ArticleItem(props) {
                     {
                         !!article.has_cover_photo &&
                         <Link
-                            to={`/article/${article.id}`}
+                            to={`/article/${article.title_id}`}
                             className="d-block flex-grow-0 order-1 order-md-0">
                             <ImageView
                                 src={article.cover_photo}
@@ -37,7 +39,7 @@ function ArticleItem(props) {
                                 <UserAvatar user={article.user} size={40} loadProfileOnClick={true}/>
                                 <div className='ml-2'>
                                     <Link
-                                        to={`/article/${article.id}`}
+                                        to={`/article/${article.title_id}`}
                                         className="font-weight-bold no-underline text-dark weight-600-on-hover">
                                         {article.title}
                                     </Link>
