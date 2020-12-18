@@ -29,14 +29,16 @@ function ImageView(props) {
     const [isLoaded, setLoaded] = useState(false);
     const [hasError, setHasError] = useState(false);
     const container = useRef(null);
+    const computeSize = element => {
+        return (element.offsetWidth < element.offsetHeight ? element.offsetWidth : element.offsetHeight) * (isRounded ? 1 : 0.5);
+    }
 
     useComponentDidUpdate(isCurrent => {
         if (!!container.current) {
             const element = container.current;
-            const newSize = (element.offsetWidth < element.offsetHeight ? element.offsetWidth : element.offsetHeight) * (isRounded ? 1 : 0.5);
 
             setTimeout(() => {
-                if (isCurrent()) setLoaderSize(newSize);
+                if (isCurrent()) setLoaderSize(computeSize(element));
             }, 100)
         }
     }, [windowWidth, windowHeight]);
@@ -95,7 +97,7 @@ function ImageView(props) {
                             const p = $(currentTarget).parent()[0];
 
                             if (p) {
-                                const size = (p.offsetWidth < p.offsetHeight ? p.offsetWidth : p.offsetHeight) * (isRounded ? 1 : 0.5)
+                                const size = computeSize(p);
                                 currentTarget.style.width = `${size}px`;
                                 currentTarget.style.height = `${size}px`;
                             }

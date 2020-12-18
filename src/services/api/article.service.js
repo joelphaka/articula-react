@@ -37,7 +37,7 @@ export function deleteArticle(id) {
     return axios.delete(`${API_ARTICLES}/${id}`).then(({data}) => data);
 }
 
-export function incrementViewCount(id) {
+export function incrementArticleViews(id) {
     return axios.post(`${API_ARTICLES_VIEW}/${id}`).then(({data}) => data);
 }
 
@@ -55,7 +55,7 @@ export default {
     createArticle,
     updateArticle,
     deleteArticle,
-    incrementViewCount,
+    incrementArticleViews,
     likeArticle,
     unlikeArticle,
 }

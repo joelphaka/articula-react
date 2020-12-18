@@ -135,6 +135,8 @@ const articleSlice = createSlice({
             const indexInArticles = state.articles.findIndex(article => article.id === payload.id);
             const indexInProfileArticles = state.profile.articles.findIndex(article => article.id === payload.id);
 
+            if (state.article?.id === payload.id) state.article = payload;
+
             if (indexInArticles > -1) state.articles[indexInArticles] = payload;
             if (indexInProfileArticles > -1) state.profile.articles[indexInProfileArticles] = payload;
         },
@@ -261,11 +263,9 @@ export const loadUserArticles = (username, query) => async (dispatch, getState) 
 export const loadArticle = (id) => async dispatch => {
     try {
         dispatch(fetchArticleBegan());
-        const article = await articleService
-            .fetchArticle(id)
-            .then(a => articleService.incrementViewCount(a.id))
+        const article = await articleService.fetchArticle(id)
+
         dispatch(articleFetched(article));
-        dispatch(articleChanged(article));
         dispatch(articleFetchErrorCleared());
     } catch (e) {
         dispatch(articleFetchFailed(formatError(e)));
@@ -302,11 +302,11 @@ export const filterProfileArticles = (filterValue) => dispatch => {
     dispatch(profileArticlesFilteringBegan(filterValue));
 }
 
-/*
-const viewArticle = (id) => async dispatch => {
+
+export const incrementArticleViews = (id) => async dispatch => {
     try {
         dispatch(articleViewingBegan());
-        const article = await articleService.incrementViewCount(id);
+        const article = await articleService.incrementArticleViews(id);
         dispatch(articleChanged(article));
         dispatch(articleViewErrorCleared());
     } catch (e) {
@@ -314,4 +314,4 @@ const viewArticle = (id) => async dispatch => {
     } finally {
         dispatch(articleViewingEnded());
     }
-}*/
+}

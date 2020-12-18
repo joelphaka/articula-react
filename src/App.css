@@ -221,6 +221,9 @@ pre.white-space-pre-line {
 .image-view > *:last-child {
   position: relative;
 }
+pre {
+  font-size: inherit;
+}
 .nav-pills-tabs {
   display: flex;
   flex-flow: row;

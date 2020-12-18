@@ -1,11 +1,14 @@
 import React, {useEffect, useState} from 'react';
-import {useParams, useHistory, Redirect} from 'react-router-dom'
+import {Link, useParams, useHistory, Redirect} from 'react-router-dom'
 import {useCurrentEffect} from "use-current-effect";
 import {useSelector, useDispatch} from "react-redux";
-import {loadArticle} from "../../../store/articleReducer";
+import {loadArticle, incrementArticleViews} from "../../../store/articleReducer";
 import withMasterLayout from "../../../components/layouts/withMasterLayout";
 import {StatusCodes} from "http-status-codes";
 import Spinner from "../../../components/ui/Spinner";
+import ImageView from "../../../components/ui/ImageView";
+import ArticleHeader from "../../../components/article/ArticleHeader";
+import {InView} from "react-intersection-observer";
 
 
 function ArticlePage() {
@@ -22,6 +25,10 @@ function ArticlePage() {
         dispatch(loadArticle(id));
 
     }, []);
+
+    function handleViewChange(inView) {
+        if (inView) dispatch(incrementArticleViews(id));
+    }
 
     return (
         <div className="container py-5">
@@ -49,10 +56,23 @@ function ArticlePage() {
                                         ) : (
                                             article &&
                                             <React.Fragment>
-                                                <h2>{article.title}</h2>
-                                                <div className='text-muted mb-4'>
-                                                    {`[${article.views}]`} - {`${article.user.first_name} ${article.user.last_name}`}
-                                                </div>
+                                                <ArticleHeader article={article} className='mb-4'/>
+                                                <InView
+                                                    as='div'
+                                                    children={null}
+                                                    triggerOnce={true}
+                                                    onChange={handleViewChange}
+                                                />
+                                                {
+                                                    !!article.has_cover_photo &&
+                                                    <ImageView
+                                                        src={article.cover_photo}
+                                                        className='w-100 mb-5'
+                                                        style={{height: '256px'}}
+                                                        imageStyle={{objectFit: 'cover'}}
+                                                    />
+                                                }
+                                                {!article.has_cover_photo && <div className='mt-5'></div>}
                                                 <pre className='white-space-pre-wrap'>{article.content}</pre>
                                             </React.Fragment>
                                         )
