@@ -8,6 +8,7 @@ import SimpleFilter from "../../../components/ui/SimpleFilter";
 import useComponentDidUpdate from "../../../hooks/useComponentDidUpdate";
 import useWindowSize from "../../../hooks/useWindowSize";
 import ListLoader from "../../../components/ui/ListLoader";
+import {Link} from "react-router-dom";
 
 
 function HomePage() {
@@ -20,7 +21,7 @@ function HomePage() {
         meta,
         filters,
         currentFilter,
-        fetchError
+        fetchArticlesError
     } = useSelector(state => state.article);
     const [query, setQuery] = useState({
         page: meta.current_page,
@@ -42,20 +43,26 @@ function HomePage() {
         <div className="container py-5">
             <div className="row">
                 <div className='col-md-12'>
-                    <div className='mt-3 mb-4 d-flex align-items-md-center flex-column flex-md-row'>
+                    <div className='mt-3 mb-4 d-flex align-items-md-center flex-row'>
                         <h3 className='m-0 font-weight-light'>Articles</h3>
-                        <SimpleFilter
-                            className='ml-md-auto mt-md-2'
-                            defaultValue={currentFilter.value}
-                            alignMenu={windowWidth > 767 ? 'right' : 'left'}
-                            filters={filters}
-                            disabled={isFetching}
-                            buttonText={currentFilter.label}
-                            onFilter={filter => {
-                                dispatch(filterArticles(filter));
-                                setQuery(q => Object({...q, page: 1, ...filter.sort}));
-                            }}
-                        />
+                        <div className='ml-auto d-flex align-items-center'>
+                            <Link
+                                to='/article/create'
+                                className='btn btn-primary btn-sm mr-1'>
+                                <i className='fa fa-plus'></i>&nbsp;
+                                <span>Create</span>
+                            </Link>
+                            <SimpleFilter
+                                defaultValue={currentFilter.value}
+                                filters={filters}
+                                disabled={isFetching}
+                                buttonText={currentFilter.label}
+                                onFilter={filter => {
+                                    dispatch(filterArticles(filter));
+                                    setQuery(q => Object({...q, page: 1, ...filter.sort}));
+                                }}
+                            />
+                        </div>
                     </div>
                     {
                         isFiltering

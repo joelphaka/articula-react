@@ -9,12 +9,19 @@ import ArticlePage from "../pages/article/ArticlePage";
 import NoFound from "../components/error/NotFound";
 import ProfilePage from "../pages/profile/ProfilePage";
 import UserArticlesPage from "../pages/profile/UserArticlesPage";
+import CreateArticlePage from "../pages/article/CreateArticlePage";
 
 const routes =  [
     {
         path: '/',
         component: HomePage,
         title: "HomePage",
+        requiresAuth: true,
+    },
+    {
+        path: '/article/create',
+        component: CreateArticlePage,
+        title: "ArticlePage",
         requiresAuth: true,
     },
     {

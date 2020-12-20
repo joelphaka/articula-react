@@ -2,29 +2,44 @@ import React, {useEffect, useState} from 'react';
 import {Link, useParams, useHistory, Redirect} from 'react-router-dom'
 import {useCurrentEffect} from "use-current-effect";
 import {useSelector, useDispatch} from "react-redux";
-import {loadArticle, incrementArticleViews} from "../../../store/articleReducer";
+import {
+    loadArticle,
+    incrementArticleViews,
+    unsetCreatedArticle
+} from "../../../store/articleReducer";
 import withMasterLayout from "../../../components/layouts/withMasterLayout";
 import {StatusCodes} from "http-status-codes";
 import Spinner from "../../../components/ui/Spinner";
 import ImageView from "../../../components/ui/ImageView";
 import ArticleHeader from "../../../components/article/ArticleHeader";
 import {InView} from "react-intersection-observer";
+import useComponentDidUpdate from "../../../hooks/useComponentDidUpdate";
 
 
 function ArticlePage() {
     const {
         article,
         isFetchingArticle,
-        articleFetchError: error
+        fetchArticleError: error,
+        creator: {createdArticle}
     } = useSelector(state => state.article);
     const dispatch = useDispatch();
     const {id} = useParams();
+    const [isCreated, setCreated] = useState(false);
+    const [isUpdated, setUpdated] = useState(false);
 
     useCurrentEffect(() => {
         window.scroll(0, 0);
         dispatch(loadArticle(id));
 
     }, []);
+
+    useComponentDidUpdate(() => {
+        if ((article && createdArticle) && article.id === createdArticle.id) {
+            dispatch(unsetCreatedArticle())
+            setCreated(true);
+        }
+    }, [article]);
 
     function handleViewChange(inView) {
         if (inView) dispatch(incrementArticleViews(id));
@@ -56,6 +71,13 @@ function ArticlePage() {
                                         ) : (
                                             article &&
                                             <React.Fragment>
+                                                {
+                                                    isCreated && (
+                                                        <div className='alert alert-success alert-dismissible'>
+                                                            Your article was created successfully. Be the first one to read it!
+                                                        </div>
+                                                    )
+                                                }
                                                 <ArticleHeader article={article} className='mb-4'/>
                                                 <InView
                                                     as='div'

@@ -4,7 +4,7 @@ import {likeOrUnlikeArticle} from "../../store/articleReducer";
 import ItemButton from "../ui/ItemButton";
 
 function LikeButton({className, article}) {
-    const {isLiking, currentArticle} = useSelector(state => state.article);
+    const {isLiking, currentArticle} = useSelector(state => state.article.liker);
     const dispatch = useDispatch();
 
     return (

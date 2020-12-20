@@ -6,8 +6,9 @@ export const validateFile = (file, rules = {}, messages={}) => {
         const errors = [];
 
         if (rules.maxSize) {
-            if ((file.size / 1024)  > rules.maxSize) {
-                errors.push(messages['maxSize'] ?? `Incorrect file type`);
+            const sizeInKilobytes = (file.size / 1024);
+            if (sizeInKilobytes  > rules.maxSize) {
+                errors.push(messages['maxSize'] ?? `The file size may not exceed ${rules.maxSize}KB`);
             }
         }
 
@@ -27,4 +28,13 @@ export const validateFile = (file, rules = {}, messages={}) => {
                 isValidation: true
             })
     })
+}
+
+export function validateImageFile(file, maxSize, messages={}) {
+    return validateFile(file, {
+            types: ['image/png', 'image/jpeg'],
+            maxSize
+        },
+        messages
+    );
 }

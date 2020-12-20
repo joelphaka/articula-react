@@ -1,6 +1,6 @@
 import React from "react";
 import UserAvatar from "../avatar/UserAvatar";
-import {Link} from "react-router-dom";
+import {Link, useHistory} from "react-router-dom";
 import moment from "moment";
 import ItemButton from "../ui/ItemButton";
 import LikeButton from "../like/LikeButton";
@@ -13,7 +13,10 @@ function ArticleHeader({article, className}) {
             <h2>{article.title}</h2>
             <div className='d-flex align-items-center'>
                 <div className='d-flex flex-row align-items-center'>
-                    <UserAvatar user={article.user} size={40}/>
+                    <UserAvatar
+                        user={article.user}
+                        size={40}
+                        loadProfileOnClick={true}/>
                     <div className='d-flex flex-column justify-content-center ml-2'>
                         <Link
                             to={`/u/${article.user.username}`}
@@ -31,32 +34,37 @@ function ArticleHeader({article, className}) {
                                         : moment(article.created_at).format('DD MMMM YYYY [at] H:mm')
                                 }
                             </div>
+                            {
+                                moment(article.updated_at).isAfter(article.created_at) && (
+                                    <React.Fragment>
+                                        <div className='mx-1'>&bull;</div>
+                                        <div>
+                                            Updated {
+                                            moment(article.updated_at).diff(moment(article.created_at), 'days') === 0
+                                                ? moment(article.updated_at).fromNow()
+                                                : moment(article.updated_at).format('MMM DD, YYYY [at] H:mm')
+                                        }
+                                        </div>
+                                    </React.Fragment>
+                                )
+                            }
                         </div>
+
                     </div>
                 </div>
-                <div className='d-flex align-items-center ml-auto'>
-                    {
-                        article.views > 0 &&
-                        <ItemButton className='no-box-shadow mr-2' style={{cursor: 'auto'}}>
-                            <i className='fa fa-eye'></i>
-                            &nbsp;
-                            <span className='text-small'>{article.views}</span>
-                        </ItemButton>
-                    }
-                    <LikeButton article={article}/>
-                </div>
+
             </div>
-            {
-                moment(article.updated_at).isAfter(article.created_at) && (
-                    <div className='text-muted font-italic mt-3 text-right' style={{fontSize: '0.84rem'}}>
-                        Updated {
-                            moment(article.updated_at).diff(moment(article.created_at), 'days') === 0
-                                ? moment(article.updated_at).fromNow()
-                                : moment(article.updated_at).format('MMM DD, YYYY [at] H:mm')
-                        }
-                    </div>
-                )
-            }
+            <div className='d-flex align-items-center mt-4'>
+                {
+                    article.views > 0 &&
+                    <ItemButton className='no-box-shadow mr-2' style={{cursor: 'auto'}}>
+                        <i className='fa fa-eye'></i>
+                        &nbsp;
+                        <span className='text-small'>{article.views}</span>
+                    </ItemButton>
+                }
+                <LikeButton article={article}/>
+            </div>
         </div>
     )
 }

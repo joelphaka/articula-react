@@ -30,7 +30,7 @@ function SimpleFilter(props) {
                 aria-expanded="false"
                 {...rest}>
                 <i className="fas fa-filter"></i>
-                &nbsp;{buttonText?buttonText:'Filter'}
+                <span className='d-none d-md-inline-block d-xl-inline-block'>&nbsp;{buttonText?buttonText:'Filter'}</span>
             </button>
             <div
                 className={`dropdown-menu dropdown-menu-${alignMenu?alignMenu:'right'}`}

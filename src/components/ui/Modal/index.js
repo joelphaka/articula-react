@@ -20,6 +20,7 @@ function Modal(props) {
         onSubmit,
         isOpen = false,
         width = 600,
+        height,
         maxWidth,
         render,
         ...rest
@@ -33,8 +34,9 @@ function Modal(props) {
     }
 
     const [isVisible, setVisible] = useState(isOpen);
-    const {'width': windowWidth} = useWindowSize();
-    const modalWidth = Number.isInteger(width) ? (width > windowWidth ? '95%' : `${width}px`) : 'auto';
+    const {'width': windowWidth, 'height': windowHeight} = useWindowSize();
+    const modalWidth = Number.isInteger(width) ? (width > windowWidth ? '95%' : `${width}px`) : (width ?? 'auto');
+    const modalHeight = Number.isInteger(height) ? (height > windowHeight ? '95%' : `${height}px`) : (height ?? 'auto');
 
     useCurrentEffect((isCurrent) => {
         if (isCurrent()) setVisible(isOpen);
@@ -49,7 +51,7 @@ function Modal(props) {
                 className="modal-wrapper"
                 overlayClassName="modal-overlay"
                 closeTimeoutMS={500}
-                style={{content: {'width': modalWidth, maxWidth}}}
+                style={{content: {'width': modalWidth, height: modalHeight, maxWidth}}}
             >
                 {
                     _.isFunction(render)

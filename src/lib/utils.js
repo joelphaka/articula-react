@@ -43,3 +43,13 @@ export const buildUrl = (location) => {
 
     return `${_location.pathname}${_location.search}`
 }
+
+export const createFormData = data => {
+    const formData = new FormData();
+
+    for (const [p, v] of Object.entries(data)) {
+        formData.append(p, v)
+    }
+
+    return formData;
+}

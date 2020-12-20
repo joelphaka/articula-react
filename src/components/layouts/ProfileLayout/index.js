@@ -22,8 +22,6 @@ function ProfileLayout({children}) {
     const _profile = useSelector(state => state.profile);
     let profile = {..._profile};
 
-    //profile.user = profile.user ? (profile.user.is_auth_user ?  auth.user : profile.user) : profile.user;
-
     const {
         isFetchingProfile,
         userError,

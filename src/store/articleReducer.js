@@ -1,66 +1,80 @@
-import {createSlice} from '@reduxjs/toolkit'
+import {createSlice} from "@reduxjs/toolkit"
 import {articleService, profileService} from "../services/api";
 import {formatError} from "../lib/utils";
-import {incrementViewCount} from "../services/api/article.service";
+import {isObject} from "lodash";
 
-const defaultFilter = {
-    value: 'created_at_desc',
-    label: 'Latest',
-    sort: {sort_by: 'created_at', sort_direction: 'desc'}
-};
 
-const defaultPaginationMeta = { current_page: 1, last_page: 1, per_page: 3 }
+const DEFAULT_PER_PAGE = 3;
+const DEFAULT_PAGINATION_META = { current_page: 1, last_page: 1, per_page: DEFAULT_PER_PAGE };
+const FILTERS = [
+    {value: 'created_at_desc', label: 'Latest', sort: {sort_by: 'created_at', sort_direction: 'desc'}},
+    {value: 'created_at_asc', label: 'Oldest', sort: {sort_by: 'created_at', sort_direction: 'asc'}},
+    {value: 'likes_count', label: 'Most liked', sort: {sort_by: 'likes_count', sort_direction: 'desc'}},
+    {value: 'views', label: 'Most viewed', sort: {sort_by: 'views', sort_direction: 'desc'}},
+];
+const DEFAULT_FILTER = FILTERS[0];
 
 const initialState = {
     articles: [],
-    meta: defaultPaginationMeta,
+    meta: DEFAULT_PAGINATION_META,
     isFetching: false,
     isFiltering: false,
     lastFetchTime: null,
-    fetchError: null,
-    profile: {
-        articles: [],
-        meta: defaultPaginationMeta,
-        currentFilter: defaultFilter,
-        isFetching: false,
-        fetchError: null,
-    },
-    currentArticle: null,
-    isLiking: false,
-    likeError: null,
-    filters: [
-        defaultFilter,
-        {value: 'created_at_asc', label: 'Oldest', sort: {sort_by: 'created_at', sort_direction: 'asc'}},
-        {value: 'likes_count', label: 'Most liked', sort: {sort_by: 'likes_count', sort_direction: 'desc'}},
-        {value: 'views', label: 'Most viewed', sort: {sort_by: 'views', sort_direction: 'desc'}},
-    ],
-    currentFilter: defaultFilter,
+    fetchArticlesError: null,
+    filters: FILTERS,
+    currentFilter: DEFAULT_FILTER,
 
     article: null,
     isFetchingArticle: false,
-    articleFetchError: null,
-    isViewingArticle: false,
-    articleViewError: null,
-
-    isCreatingArticle: false,
-    articleCreateError: null,
-
-    isUpdatingArticle: false,
-    articleUpdateError: null,
+    fetchArticleError: null,
+    
+    profile: {
+        articles: [],
+        meta: DEFAULT_PAGINATION_META,
+        currentFilter: DEFAULT_FILTER,
+        isFetching: false,
+        isFiltering: false,
+        error: null,
+    },
+    viewer: {
+        isViewing: false,
+        error: null,
+        
+    },
+    liker: {
+        currentArticle: null,
+        isLiking: false,
+        likeError: null,
+    },
+    creator: {
+        isCreating: false,
+        error: null,
+        createdArticle: null,
+    },
+    updater: {
+        isUpdating: false,
+        error: null,
+        updatedArticle: null,
+    },
+    deleter: {
+        isDeleting: false,
+        error: null,
+        deleteArticle: null,
+    }
 }
 
 const articleSlice = createSlice({
     name: 'article',
     initialState: initialState,
     reducers: {
-        articlesFetchBegan: state => {
+        fetchArticlesRequested: state => {
             state.isFetching = true;
         },
-        articlesFetchEnded: state => {
+        fetchArticlesCompleted: state => {
             state.isFetching = false;
         },
-        articlesFetchFailed: (state, {payload}) => {
-            state.fetchError = payload;
+        fetchArticlesFailed: (state, {payload}) => {
+            state.fetchArticlesError = payload;
         },
         articlesFetched: (state, {payload}) => {
             state.meta = payload.meta;
@@ -75,7 +89,11 @@ const articleSlice = createSlice({
                 })]
             }
         },
-        articlesFilteringBegan: (state, {payload}) =>{
+        clearArticlesError: state => {
+            state.fetchArticlesError = null
+        },
+
+        filterArticles: (state, {payload}) =>{
             state.currentFilter = payload;
             state.isFiltering = true;
 
@@ -83,15 +101,14 @@ const articleSlice = createSlice({
         articlesFiltered: (state) => {
             state.isFiltering = false;
         },
-        ////
 
-        profileArticlesFetchBegan: (state) => {
+        fetchProfileArticlesRequested: (state) => {
             state.profile.isFetching = true;
         },
-        profileArticlesFetchEnded: (state) => {
+        fetchProfileArticlesCompleted: (state) => {
             state.profile.isFetching = false;
         },
-        profileArticlesFetchFailed: (state, {payload}) => {
+        fetchProfileArticlesFailed: (state, {payload}) => {
             state.profile.fetchError = payload;
         },
         profileArticlesFetched: (state, {payload}) => {
@@ -107,30 +124,38 @@ const articleSlice = createSlice({
                 })]
             }
         },
-        profileArticlesFilteringBegan: (state, {payload}) =>{
-            state.profile.currentFilter = payload;
-            state.profile.isFiltering = true;
-
-        },
-        profileArticlesFiltered: (state, {payload}) => {
-            state.profile.isFiltering = false;
-        },
-        profileArticlesEmptied: state => {
+        clearProfileArticles: state => {
             state.profile = initialState.profile;
         },
 
-        ////
-        likeBegan: (state, {payload}) => {
-            state.isLiking = true;
-            state.currentArticle = payload;
+        filterProfileArticles: (state, {payload}) =>{
+            state.profile.currentFilter = payload;
+            state.profile.isFiltering = true;
         },
-        likeEnded: (state) => {
-            state.isLiking = false;
-            //state.currentArticle = null;
+        profileArticlesFiltered: state => {
+            state.profile.isFiltering = false;
         },
-        likeFailed: (state, {payload}) => {
-            state.likeError = payload;
+        profileArticlesCleared: state => {
+            state.profile = initialState.profile;
         },
+        clearProfileArticlesError: state => {
+            state.profile.fetchError = null;
+        },
+
+        likeArticleRequested: (state, {payload}) => {
+            state.liker.isLiking = true;
+            state.liker.currentArticle = payload;
+        },
+        likeArticleCompleted: (state) => {
+            state.liker.isLiking = false;
+        },
+        likeArticleFailed: (state, {payload}) => {
+            state.liker.likeError = payload;
+        },
+        clearLikeError: state => {
+            state.liker.likeError = null;
+        },
+
         articleChanged: (state, {payload}) => {
             const indexInArticles = state.articles.findIndex(article => article.id === payload.id);
             const indexInProfileArticles = state.profile.articles.findIndex(article => article.id === payload.id);
@@ -140,43 +165,91 @@ const articleSlice = createSlice({
             if (indexInArticles > -1) state.articles[indexInArticles] = payload;
             if (indexInProfileArticles > -1) state.profile.articles[indexInProfileArticles] = payload;
         },
-        articlesErrorCleared: state => {
-            state.fetchError = null;
-        },
-        profileArticlesErrorCleared: state => {
-            state.profile.fetchError = null;
-        },
-        likeErrorCleared: state => {
-            state.likeError = null;
-        },
 
-        fetchArticleBegan: state => {
-            state.isFetchingArticle = true;
+        fetchArticleRequested: state => {
+            state.isFetchingArticle = true
         },
         articleFetched: (state, {payload}) => {
-            state.article = payload;
+            state.article = payload
         },
-        articleFetchErrorCleared: state => {
-            state.articleFetchError = null;
+        fetchArticleFailed: (state, {payload}) => {
+            state.fetchArticleError = payload
         },
-        articleFetchFailed: (state, {payload}) =>  {
-            state.articleFetchError = payload;
+        fetchArticleCompleted: state => {
+            state.isFetchingArticle = false
         },
-        articleFetchEnded: state => {
-            state.isFetchingArticle = false;
+        clearArticleError: state => {
+            state.fetchArticleError = null
         },
-        articleViewingBegan: state => {
-            state.isViewingArticle = true;
+
+        viewArticleRequested: state => {
+            state.viewer.isViewing = true
         },
-        articleViewErrorCleared: state => {
-            state.articleViewError = null;
+        clearViewArticleError: state => {
+            state.viewer.error = null
         },
-        articleViewingFailed: (state, {payload}) => {
-            state.articleViewError = payload;
+        viewArticleFailed: (state, {payload}) => {
+            state.viewer.error = payload
         },
-        articleViewingEnded: state => {
-            state.isViewingArticle = false;
-        }
+        viewArticleCompleted: state => {
+            state.viewer.isViewing = false
+        },
+
+        createArticleRequested: state => {
+            state.creator.isCreating = true
+        },
+        articleCreated: (state, {payload}) => {
+            Object.assign(state, {
+                initialState,
+                ...{create: {createdArticle: payload}}
+            });
+        },
+        createArticleFailed: (state, {payload}) => {
+            state.creator.error = payload
+        },
+        createArticleCompleted: state => {
+            state.creator.isCreating = false
+        },
+        unsetCreatedArticle: state => {
+            state.creator.createdArticle = null
+        },
+
+        updateArticleRequested: state => {
+            state.updater.isUpdating = true
+        },
+        articleUpdated: (state, {payload}) => {
+            state.updater.updatedArticle = payload;
+        },
+        updateArticleFailed: (state, {payload}) => {
+            state.updater.error = payload
+        },
+        updateArticleCompleted: state => {
+            state.updater.isUpdating = false
+        },
+        unsetUpdatedArticle: state => {
+            state.updater.updatedArticle = null
+        },
+
+        deleteArticleRequested: state => {
+            state.deleter.isDeleting = true;
+        },
+        articleDeleted: (state, {payload}) => {
+            state.articles = state.articles.filter(a => a.id !== payload.id);
+            state.profile.articles = state.profile.articles.filter(a => a.id !== payload.id);
+        },
+        deleteArticleCompleted: state => {
+            state.deleter.isDeleting = true;
+        },
+        deleteArticleFailed: (state, {payload}) => {
+            state.deleter.error = payload;
+        },
+        clearDeleteError: state => {
+            state.deleter.error = null;
+        },
+
+        clearAllArticles: state => {
+            Object.assign(state, initialState)
+        },
     },
 })
 
@@ -185,60 +258,80 @@ const articleSlice = createSlice({
 const { actions, reducer } = articleSlice
 // Extract and export each action creator by name
 const {
-    articlesFetchBegan,
+    fetchArticlesRequested,
     articlesFetched,
-    articlesFetchFailed,
-    articlesFetchEnded,
-    articlesErrorCleared,
+    fetchArticlesFailed,
+    fetchArticlesCompleted,
+    clearArticlesError,
 
-    profileArticlesFetchBegan,
+    fetchProfileArticlesRequested,
     profileArticlesFetched,
-    profileArticlesFetchFailed,
-    profileArticlesFetchEnded,
-    profileArticlesErrorCleared,
-    profileArticlesEmptied,
+    fetchProfileArticlesFailed,
+    fetchProfileArticlesCompleted,
+    clearProfileArticlesError,
 
     articleChanged,
 
-    likeBegan,
-    likeEnded,
-    likeFailed,
-    likeErrorCleared,
+    likeArticleRequested,
+    likeArticleCompleted,
+    likeArticleFailed,
+    clearLikeError,
 
-    fetchArticleBegan,
+    fetchArticleRequested,
     articleFetched,
-    articleFetchErrorCleared,
-    articleFetchFailed,
-    articleFetchEnded,
+    clearArticleError,
+    fetchArticleFailed,
+    fetchArticleCompleted,
 
-    articleViewingBegan,
-    articleViewErrorCleared,
-    articleViewingFailed,
-    articleViewingEnded
-} = actions
-// Export the reducer, either as a default or named export
-export default reducer
-
-const {
     articlesFiltered,
-    articlesFilteringBegan,
-    profileArticlesFilteringBegan,
-    profileArticlesFiltered
+    profileArticlesFiltered,
+
+    viewArticleRequested,
+    clearViewArticleError,
+    viewArticleFailed,
+    viewArticleCompleted,
+
+    createArticleRequested,
+    articleCreated,
+    createArticleFailed,
+    createArticleCompleted,
+
+    updateArticleRequested,
+    articleUpdated,
+    updateArticleFailed,
+    updateArticleCompleted,
+
+    deleteArticleRequested,
+    articleDeleted,
+    deleteArticleCompleted,
+    deleteArticleFailed,
+    clearDeleteError,
+
+} = actions
+
+export const {
+    filterArticles,
+    filterProfileArticles,
+    clearAllArticles,
+    clearProfileArticles,
+    unsetCreatedArticle,
+    unsetUpdatedArticle,
 } = actions;
+
+// Export the reducer, either as a default or named export
+export default reducer;
 
 export const loadArticles = (query) => async (dispatch, getState) => {
     try {
-        dispatch(articlesFetchBegan());
+        dispatch(fetchArticlesRequested());
         const {data, meta} = await articleService.fetchArticles(query);
         dispatch(articlesFetched({data, meta}));
-        dispatch(articlesErrorCleared());
+        dispatch(clearArticlesError());
     } catch (e) {
-        dispatch(articlesFetchFailed(formatError(e)));
+        dispatch(fetchArticlesFailed(formatError(e)));
     } finally {
-        dispatch(articlesFetchEnded());
+        dispatch(fetchArticlesCompleted());
         if (getState().article.isFiltering) {
-            console.log(getState())
-
             dispatch(articlesFiltered());
         }
     }
@@ -246,14 +339,14 @@ export const loadArticles = (query) => async (dispatch, getState) => {
 
 export const loadUserArticles = (username, query) => async (dispatch, getState) => {
     try {
-        dispatch(profileArticlesFetchBegan());
+        dispatch(fetchProfileArticlesRequested());
         const {data, meta} = await profileService.fetchUserArticles(username, query);
         dispatch(profileArticlesFetched({data, meta}));
-        dispatch(profileArticlesErrorCleared());
+        dispatch(clearProfileArticlesError());
     } catch (e) {
-        dispatch(profileArticlesFetchFailed(formatError(e)));
+        dispatch(fetchProfileArticlesFailed(formatError(e)));
     } finally {
-        dispatch(profileArticlesFetchEnded());
+        dispatch(fetchProfileArticlesCompleted());
         if (getState().article.profile.isFiltering) {
             dispatch(profileArticlesFiltered());
         }
@@ -262,56 +355,85 @@ export const loadUserArticles = (username, query) => async (dispatch, getState) 
 
 export const loadArticle = (id) => async dispatch => {
     try {
-        dispatch(fetchArticleBegan());
+        dispatch(fetchArticleRequested());
         const article = await articleService.fetchArticle(id)
 
         dispatch(articleFetched(article));
-        dispatch(articleFetchErrorCleared());
+        dispatch(clearArticleError());
     } catch (e) {
-        dispatch(articleFetchFailed(formatError(e)));
+        dispatch(fetchArticleFailed(formatError(e)));
     } finally {
-        dispatch(articleFetchEnded());
+        dispatch(fetchArticleCompleted());
     }
 }
 
 export const emptyUserArticles = () => dispatch => {
-    dispatch(profileArticlesEmptied());
+    dispatch(clearProfileArticles());
 }
 
 export const likeOrUnlikeArticle = (article) => async dispatch => {
     try {
-        dispatch(likeBegan(article))
+        dispatch(likeArticleRequested(article))
         const updatedArticle = !article.is_liked
             ? await articleService.likeArticle(article.id)
             : await articleService.unlikeArticle(article.id);
 
         dispatch(articleChanged(updatedArticle));
-        dispatch(likeErrorCleared());
+        dispatch(clearLikeError());
     } catch (e) {
-        dispatch(likeFailed(formatError(e)));
+        dispatch(likeArticleFailed(formatError(e)));
     } finally {
-        dispatch(likeEnded());
+        dispatch(likeArticleCompleted());
     }
 }
 
-export const filterArticles = (filterValue) => (dispatch, getState) => {
-    dispatch(articlesFilteringBegan(filterValue));
-}
-
-export const filterProfileArticles = (filterValue) => dispatch => {
-    dispatch(profileArticlesFilteringBegan(filterValue));
-}
-
-
 export const incrementArticleViews = (id) => async dispatch => {
     try {
-        dispatch(articleViewingBegan());
+        dispatch(viewArticleRequested());
         const article = await articleService.incrementArticleViews(id);
         dispatch(articleChanged(article));
-        dispatch(articleViewErrorCleared());
+        dispatch(clearViewArticleError());
     } catch (e) {
-        dispatch(articleViewingFailed(formatError(e)));
+        dispatch(viewArticleFailed(formatError(e)));
     } finally {
-        dispatch(articleViewingEnded());
+        dispatch(viewArticleCompleted());
+    }
+}
+
+export const createArticle = data => async dispatch => {
+    try {
+        dispatch(createArticleRequested())
+        const article = await articleService.createArticle(data);
+        dispatch(articleCreated(article))
+    } catch (e) {
+        dispatch(createArticleFailed(formatError(e)));
+    } finally {
+        dispatch(createArticleCompleted());
+    }
+}
+
+export const updateArticle = data => async dispatch => {
+    try {
+        dispatch(updateArticleRequested())
+        const article = await articleService.updateArticle(data);
+        dispatch(articleUpdated(article))
+    } catch (e) {
+        dispatch(updateArticleFailed(formatError(e)));
+    } finally {
+        dispatch(updateArticleCompleted());
+    }
+}
+
+export const deleteArticle = article => async dispatch => {
+    try {
+        dispatch(deleteArticleRequested())
+        const id = isObject(article) ? article.id : article;
+        const article = await articleService.deleteArticle(id);
+        dispatch(articleDeleted(article));
+        dispatch(clearDeleteError());
+    } catch (e) {
+        dispatch(deleteArticleFailed(formatError(e)));
+    } finally {
+        dispatch(deleteArticleCompleted());
     }
 }

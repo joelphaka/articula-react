@@ -3,7 +3,10 @@ import { Formik, Form } from 'formik'
 import FormControl from "../../../components/ui/Form/FormControl";
 import * as Yup from 'yup'
 import classes from './LoginForm.module.css'
-import validationMessages from '../../../lib/validation.messages'
+import {
+    MESSAGE_REQUIRED,
+    MESSAGE_EMAIL
+} from '../../../lib/validation.messages'
 import {loginUser} from "../../../store/authReducer";
 import Spinner from "../../ui/Spinner";
 import {useDispatch, useSelector} from "react-redux";
@@ -11,26 +14,23 @@ import {Link} from "react-router-dom";
 import {useCurrentCallback} from "use-current-effect";
 import {StatusCodes} from "http-status-codes";
 
+
+const initialValues = {
+    email: '',
+    password: '',
+};
+
+const validationSchema = Yup.object({
+    email: Yup
+        .string()
+        .required(MESSAGE_REQUIRED)
+        .email(MESSAGE_EMAIL),
+    password: Yup
+        .string()
+        .required(MESSAGE_REQUIRED),
+});
+
 function LoginForm() {
-    const initialValues = {
-        email: '',
-        password: '',
-    };
-    const {
-        MESSAGE_REQUIRED,
-        MESSAGE_EMAIL
-    } = validationMessages;
-
-    const validationSchema = Yup.object({
-        email: Yup
-            .string()
-            .required(MESSAGE_REQUIRED)
-            .email(MESSAGE_EMAIL),
-        password: Yup
-            .string()
-            .required(MESSAGE_REQUIRED),
-    });
-
     const auth = useSelector(state => state.auth);
     const dispatch = useDispatch();
 

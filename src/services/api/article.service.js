@@ -6,6 +6,7 @@ import {
     API_LIKES_LIKE_ARTICLE,
     API_LIKES_UNLIKE_ARTICLE
 } from "./paths";
+import {createFormData} from "../../lib/utils";
 
 export function fetchArticles(query = {}) {
     return axios.get(`${API_ARTICLES}`, {params: query}).then(({data}) => data);
@@ -16,7 +17,7 @@ export function fetchArticle(id) {
 }
 
 export function createArticle(data, onProgress = null) {
-    return axios.post(`${API_ARTICLES}`, data, {
+    return axios.post(`${API_ARTICLES}`, createFormData(data), {
         headers: {
             'Content-Type': 'multipart/form-data',
         },
@@ -25,7 +26,7 @@ export function createArticle(data, onProgress = null) {
 }
 
 export function updateArticle(data, onProgress = null) {
-    return axios.post(`${API_ARTICLES}/${data.id}`, data, {
+    return axios.post(`${API_ARTICLES}/${data.id}`, createFormData(data), {
         headers: {
             'Content-Type': 'multipart/form-data',
         },

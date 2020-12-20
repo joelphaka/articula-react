@@ -2,9 +2,14 @@ import React, {useEffect, useRef, useState} from 'react';
 import {Formik, Form, Field} from 'formik'
 import FormControl from "../../components/ui/Form/FormControl";
 import * as Yup from 'yup'
-import validationMessages from '../../lib/validation.messages'
+import {
+    MESSAGE_REQUIRED,
+    MESSAGE_MATCH_PASSWORD,
+    MESSAGE_EMAIL,
+    MESSAGE_TERMS_AND_CONDITIONS
+} from '../../lib/validation.messages'
 import ValidationMessage from "../ui/Form/ValidationMessage";
-import {formatError, formatValidationErrors} from "../../lib/utils";
+import {formatError} from "../../lib/utils";
 import {useHistory} from "react-router-dom";
 import {authService} from "../../services/api";
 import Spinner from "../ui/Spinner";
@@ -12,12 +17,6 @@ import {useCurrentCallback} from "use-current-effect";
 import {useDispatch, useSelector} from "react-redux";
 import {loginUser} from "../../store/authReducer";
 
-const {
-    MESSAGE_REQUIRED,
-    MESSAGE_MATCH_PASSWORD,
-    MESSAGE_EMAIL,
-    MESSAGE_TERMS_AND_CONDITIONS
-} = validationMessages;
 
 const validationSchema = Yup.object({
     first_name: Yup

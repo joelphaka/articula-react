@@ -1,39 +1,72 @@
 import React, {useState} from 'react'
 import _ from 'lodash'
-import './styles/FileInput/FileInput.css'
+import './FileInput.css'
 
-function validateFileSize(file, maxSize) {
-
-}
-
-function validateFileType(file, type) {
-
-}
 
 function FileInput(props) {
-    const {name, maxSize, type, onChange, className, children} = props;
-    let cssClass = `file-input${className ? ' ' + className : ''}`;
+    const {
+        name,
+        maxSize,
+        type,
+        onChange,
+        onRemove,
+        className,
+        children,
+        disabled,
+        before,
+        after,
+        ...rest
+    } = props;
+    let cssClass = `file-input${className?` ${className}`:''}`;
 
     const [selectedFile, setSelectedFile ] = useState(null)
 
-    const handleChange = (e) => {
-        if (_.isFunction(onChange)) onChange(e);
-        //console.log(e.target.files)
-        setSelectedFile(e.target.files[0])
-    };
+    function handleChange(e) {
+        const file = e.currentTarget.files[0];
+        setSelectedFile(file);
+
+        if (_.isFunction(onChange)) onChange(file);
+    }
+
+    function handleRemove(e) {
+        if (selectedFile) {
+            setSelectedFile(null);
+
+            if (_.isFunction(onRemove)) onRemove();
+        }
+    }
 
     return (
         <React.Fragment>
-            <label className={cssClass} htmlFor={name}>
-                <input
-                    id={name}
-                    name={name}
-                    type='file'
-                    onChange={handleChange}
-                />
-                {children}
-            </label>
-            { selectedFile && <span>{selectedFile.name}</span> }
+            <div className='d-flex align-items-center'>
+                {before}
+                <label className={cssClass} htmlFor={name}>
+                    <input
+                        id={name}
+                        name={name}
+                        type='file'
+                        disabled={disabled}
+                        onChange={handleChange}
+                        {...rest}
+                    />
+                    {children}
+                </label>
+                {
+                    selectedFile && (
+                        <div className='d-flex align-items-center ml-1'>
+                            <button
+                                type='button'
+                                className='btn btn-danger d-block'
+                                disabled={disabled}
+                                onClick={handleRemove}>
+                                <i className='fa fa-times'></i>
+                            </button>
+                            {after}
+                            <div>&nbsp;{selectedFile.name}</div>
+                        </div>
+                    )
+                }
+            </div>
         </React.Fragment>
     )
 }
