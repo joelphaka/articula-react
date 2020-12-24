@@ -3,12 +3,11 @@ import {createSlice} from '@reduxjs/toolkit'
 const initialState = {
     isSidebarOpen: false,
     appName: "Articula",
-    articleFilters: [
-        {value: 'created_at_desc', label: 'Latest', meta: {sort_by: 'created_at', sort_direction: 'desc'}},
-        {value: 'created_at_asc', label: 'Oldest', meta: {sort_by: 'created_at', sort_direction: 'asc'}},
-        {value: 'likes_count', label: 'Most liked', meta: {sort_by: 'likes_count', sort_direction: 'desc'}},
-        {value: 'views', label: 'Most viewed', meta: {sort_by: 'views', sort_direction: 'desc'}},
-    ]
+    errorDialog: {
+        title: 'Error',
+        children: 'An error occurred. Please try again later.',
+        isOpen: false,
+    }
 }
 
 const uiSlice = createSlice({
@@ -21,8 +20,15 @@ const uiSlice = createSlice({
         appNameChanged: (state, action) => {
             state.appName = action.payload
         },
-        reset: (state, action) => {
-
+        showErrorDialog: (state, {payload}) => {
+            state.errorDialog = {
+                ...payload,
+                children: payload ? (payload.content ?? payload.children) : state.errorDialog.children,
+                isOpen: true,
+            }
+        },
+        closeErrorDialog: state => {
+            state.errorDialog.isOpen = false;
         }
     }
 })
@@ -31,6 +37,6 @@ const uiSlice = createSlice({
 // Extract the action creators object and the reducer
 const { actions, reducer } = uiSlice
 // Extract and export each action creator by name
-export const {sidebarToggled, appNameChanged} = actions
+export const {showErrorDialog, closeErrorDialog} = actions
 // Export the reducer, either as a default or named export
 export default reducer

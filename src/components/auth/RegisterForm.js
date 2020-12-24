@@ -13,9 +13,10 @@ import {formatError} from "../../lib/utils";
 import {useHistory} from "react-router-dom";
 import {authService} from "../../services/api";
 import Spinner from "../ui/Spinner";
-import {useCurrentCallback} from "use-current-effect";
+import useCurrentCallback from "../../hooks/useCurrentCallback";
 import {useDispatch, useSelector} from "react-redux";
 import {loginUser} from "../../store/authReducer";
+import useComponentDidUpdate from "../../hooks/useComponentDidUpdate";
 
 
 const validationSchema = Yup.object({
@@ -56,12 +57,9 @@ function RegisterForm({className = ''}) {
     const auth = useSelector(state => state.auth);
     const didUpdateRef = useRef(false);
 
-    useEffect(() => {
-        if (didUpdateRef.current) {
-            if (auth.error) history.replace('/login')
-        } else didUpdateRef.current = true;
+    useComponentDidUpdate(() => {
+        if (auth.error) history.replace('/login')
     }, [auth.error])
-
 
     const handleSubmit = useCurrentCallback((isCurrent => async (values, form) => {
         try {

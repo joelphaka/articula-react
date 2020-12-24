@@ -6,7 +6,7 @@ export function formatError (e, formatValidation = true, log = true) {
         ? {
             status: parseInt(e.response.status),
             isValidation: parseInt(e.response.status) === 422,
-            ...e.response.data
+            ...Object(isObject(e.response.data) ? e.response.data : {message: e.response.data}) ,
         }
         : {
             status: 500,

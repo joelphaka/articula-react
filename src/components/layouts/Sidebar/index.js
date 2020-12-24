@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import _ from 'lodash'
 import classes from './Sidebar.module.css'
 import $ from 'jquery'
-import {useCurrentEffect} from "use-current-effect";
+import useCurrentEffect from "../../../hooks/useCurrentEffect";
 
 function Sidebar({isOpen, onClose}) {
 
@@ -16,8 +16,6 @@ function Sidebar({isOpen, onClose}) {
             $(target).parent().hasClass(navBarTogglerClass) ||
 
             $(target).parent().hasClass(`.${classes.sidebarToggler}`);
-
-        //console.log(isSidebarToggler)
 
         if (!isSidebarToggler && !isParentOfTarget) handleClose();
     }
@@ -40,7 +38,6 @@ function Sidebar({isOpen, onClose}) {
     }, [handleBodyClick]);
 
     useCurrentEffect((isCurrent) => {
-        //console.log(`[Modal]{isOpen} - changed[${isOpen}]`+ Date.now())
         if(isCurrent()) setVisible(isOpen);
     },[isOpen]);
 

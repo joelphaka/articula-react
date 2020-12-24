@@ -1,37 +1,34 @@
 import React, {useEffect, useState} from "react";
 import ReactModal from 'react-modal'
-import _ from 'lodash'
+import {isFunction} from 'lodash'
 import BootstrapTemplate from "./BoostrapTemplate/BoostrapTemplate";
 import useWindowSize from "../../../hooks/useWindowSize";
-import {useCurrentEffect} from "use-current-effect";
+import useCurrentEffect from "../../../hooks/useCurrentEffect";
+import useCurrentCallback from "../../../hooks/useCurrentCallback";
 
 ReactModal.setAppElement("#root");
 
 function Modal(props) {
-
-    function handleClose() {
-        setVisible(false);
-        if (_.isFunction(onClose)) onClose();
-    }
-
     const {
-        isForm = false,
-        onClose,
-        onSubmit,
         isOpen = false,
+        onClose,
         width = 600,
         height,
         maxWidth,
         render,
+        component,
+        isBootstrapModal=true,
+        shouldCloseOnEsc=true,
+        shouldCloseOnOverlayClick=true,
         ...rest
     } = props;
 
     const childProps = {
-        ...props,
         closeModal: () => {
             handleClose()
-        }
-    }
+        },
+        ...props
+    };
 
     const [isVisible, setVisible] = useState(isOpen);
     const {'width': windowWidth, 'height': windowHeight} = useWindowSize();
@@ -42,6 +39,14 @@ function Modal(props) {
         if (isCurrent()) setVisible(isOpen);
     },[isOpen]);
 
+
+    const handleClose = useCurrentCallback(isCurrent =>  {
+        if (isCurrent() && isFunction(onClose)) {
+            setVisible(false);
+            onClose();
+        }
+    });
+
     return (
         <React.Fragment>
             <ReactModal
@@ -51,20 +56,26 @@ function Modal(props) {
                 className="modal-wrapper"
                 overlayClassName="modal-overlay"
                 closeTimeoutMS={500}
+                shouldCloseOnEsc={shouldCloseOnEsc}
+                shouldCloseOnOverlayClick={shouldCloseOnOverlayClick}
                 style={{content: {'width': modalWidth, height: modalHeight, maxWidth}}}
             >
                 {
-                    _.isFunction(render)
-                        ? render(childProps)
-                        : (
-                            isForm
-                                ? (
-                                    <form {...rest}>
-                                        <BootstrapTemplate {...childProps}/>
-                                    </form>
-                                )
-                                : <BootstrapTemplate {...childProps}/>
-                        )
+                    (() => {
+                        if (isFunction(render)) {
+                            return render(childProps);
+                        } else if (component) {
+                            const Component = component;
+
+                            return <Component {...childProps}/>
+                        } else {
+                            if (isBootstrapModal) {
+                                return <BootstrapTemplate {...childProps}/>
+                            } else {
+                                return props?.children;
+                            }
+                        }
+                    })()
                 }
             </ReactModal>
         </React.Fragment>

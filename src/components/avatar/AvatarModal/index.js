@@ -4,7 +4,6 @@ import Modal from "../../ui/Modal";
 import {validateFile} from '../../../lib/validators'
 import {uploadAvatar, removeAvatar} from "../../../store/avatarReducer";
 import Spinner from "../../ui/Spinner";
-import {useCurrentEffect} from "use-current-effect";
 import useComponentDidUpdate from "../../../hooks/useComponentDidUpdate";
 
 

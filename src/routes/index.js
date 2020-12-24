@@ -10,6 +10,7 @@ import NoFound from "../components/error/NotFound";
 import ProfilePage from "../pages/profile/ProfilePage";
 import UserArticlesPage from "../pages/profile/UserArticlesPage";
 import CreateArticlePage from "../pages/article/CreateArticlePage";
+import EditArticlePage from "../pages/article/EditArticlePage";
 
 const routes =  [
     {
@@ -21,7 +22,13 @@ const routes =  [
     {
         path: '/article/create',
         component: CreateArticlePage,
-        title: "ArticlePage",
+        title: "Create Article",
+        requiresAuth: true,
+    },
+    {
+        path: '/article/edit/:id',
+        component: EditArticlePage,
+        title: "Update Article",
         requiresAuth: true,
     },
     {

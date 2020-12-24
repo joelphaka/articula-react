@@ -1,5 +1,5 @@
 import React, {useRef} from "react";
-import {useCurrentEffect} from "use-current-effect";
+import useCurrentEffect from "./useCurrentEffect";
 import {isFunction} from 'lodash'
 
 export default function useComponentDidUpdate(callback, deps) {

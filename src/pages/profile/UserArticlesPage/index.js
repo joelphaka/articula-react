@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from "react-redux";
-import {useCurrentEffect} from "use-current-effect";
+import useCurrentEffect from "../../../hooks/useCurrentEffect";
 import {loadUserArticles, filterProfileArticles} from "../../../store/articleReducer";
 import ArticleList from "../../../components/article/ArticleList";
 import withProfileLayout from "../../../components/layouts/withProfileLayout";
@@ -9,6 +9,7 @@ import useWindowSize from "../../../hooks/useWindowSize";
 import useComponentDidUpdate from "../../../hooks/useComponentDidUpdate";
 import SimpleFilter from "../../../components/ui/SimpleFilter";
 import ListLoader from "../../../components/ui/ListLoader";
+import useCurrentUrl from "../../../hooks/useCurrentUrl";
 
 function UserArticlesPage({profile: {user}}) {
     const {
@@ -26,15 +27,13 @@ function UserArticlesPage({profile: {user}}) {
     });
     const {width: windowWidth} = useWindowSize();
     const dispatch = useDispatch();
+    const currentUrl = useCurrentUrl();
 
     useCurrentEffect(() => {
         if (articles.length === 0) dispatch(loadUserArticles(user.username, query));
     }, []);
 
-    useComponentDidUpdate(() => {
-        dispatch(loadUserArticles(user.username, query));
-        console.log('FETCHING USER ARTICLES...|Page: ' + `${query.page}|- ` + Date.now());
-    }, [query])
+    useComponentDidUpdate(() => dispatch(loadUserArticles(user.username, query)), [query])
 
     return (
         <div className='container'>
@@ -65,6 +64,7 @@ function UserArticlesPage({profile: {user}}) {
                                                 hasMore={meta.last_page > meta.current_page}
                                                 isFetching={isFetching}
                                                 page={query.page}
+                                                returnUrlAfterEdit={currentUrl}
                                                 onLoadMore={() => {
                                                     setQuery(q => Object({...q, page: q.page + 1}))
                                                 }}

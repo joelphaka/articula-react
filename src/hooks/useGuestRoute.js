@@ -2,7 +2,6 @@ import React, {useEffect} from "react";
 import {useSelector} from "react-redux";
 import {useLocation, useHistory} from "react-router-dom"
 import {buildUrl} from "../lib/utils";
-import routes from "../routes";
 
 function useGuestRoute() {
     const auth = useSelector(state => state.auth);

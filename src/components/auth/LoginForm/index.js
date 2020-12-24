@@ -11,7 +11,7 @@ import {loginUser} from "../../../store/authReducer";
 import Spinner from "../../ui/Spinner";
 import {useDispatch, useSelector} from "react-redux";
 import {Link} from "react-router-dom";
-import {useCurrentCallback} from "use-current-effect";
+import useCurrentCallback from "../../../hooks/useCurrentCallback";
 import {StatusCodes} from "http-status-codes";
 
 
