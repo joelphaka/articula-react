@@ -52,19 +52,21 @@ function FileInput(props) {
                     {children}
                 </label>
                 {
-                    selectedFile && (
-                        <div className='d-flex align-items-center ml-1'>
-                            <button
-                                type='button'
-                                className='btn btn-danger d-block'
-                                disabled={disabled}
-                                onClick={handleRemove}>
-                                <i className='fa fa-times'></i>
-                            </button>
-                            {after}
-                            <div>&nbsp;{selectedFile.name}</div>
-                        </div>
-                    )
+                    <div className='d-flex align-items-center ml-1'>
+                        {
+                            selectedFile && (
+                                <button
+                                    type='button'
+                                    className='btn btn-danger d-block'
+                                    disabled={disabled}
+                                    onClick={handleRemove}>
+                                    <i className='fa fa-times'></i>
+                                </button>
+                            )
+                        }
+                        {after}
+                        {selectedFile && <div>&nbsp;{selectedFile.name}</div>}
+                    </div>
                 }
             </div>
         </React.Fragment>

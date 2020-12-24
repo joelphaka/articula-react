@@ -1,9 +1,8 @@
-import React, {useEffect} from "react";
+import React from "react";
 import {isFunction} from 'lodash'
-import Spinner from "../ui/Spinner";
 import {useInView} from "react-intersection-observer";
 import ListLoader from "./ListLoader";
-import {useCurrentEffect} from "use-current-effect";
+import useCurrentEffect from "../../hooks/useCurrentEffect";
 
 function InfiniteScroll(props) {
     const {

@@ -1,11 +1,13 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {Link, useParams, useHistory, Redirect} from 'react-router-dom'
-import {useCurrentEffect} from "use-current-effect";
+import useCurrentCallback from "../../../hooks/useCurrentCallback";
+import useCurrentEffect from "../../../hooks/useCurrentEffect";
 import {useSelector, useDispatch} from "react-redux";
 import {
     loadArticle,
     incrementArticleViews,
-    unsetCreatedArticle
+    unsetCreatedArticle,
+    unsetUpdatedArticle,
 } from "../../../store/articleReducer";
 import withMasterLayout from "../../../components/layouts/withMasterLayout";
 import {StatusCodes} from "http-status-codes";
@@ -21,7 +23,9 @@ function ArticlePage() {
         article,
         isFetchingArticle,
         fetchArticleError: error,
-        creator: {createdArticle}
+        creator: {createdArticle},
+        updater: {updatedArticle},
+        deleter: {isDeleting}
     } = useSelector(state => state.article);
     const dispatch = useDispatch();
     const {id} = useParams();
@@ -35,22 +39,29 @@ function ArticlePage() {
     }, []);
 
     useComponentDidUpdate(() => {
-        if ((article && createdArticle) && article.id === createdArticle.id) {
-            dispatch(unsetCreatedArticle())
-            setCreated(true);
+        if (article) {
+            if (createdArticle && article.id === createdArticle.id) {
+                dispatch(unsetCreatedArticle())
+                setCreated(true);
+                setUpdated(false)
+            } else if (updatedArticle && article.id === updatedArticle.id) {
+                dispatch(unsetUpdatedArticle())
+                setUpdated(true);
+                setCreated(false);
+            }
         }
     }, [article]);
 
-    function handleViewChange(inView) {
-        if (inView) dispatch(incrementArticleViews(id));
-    }
+    const handleViewChange = useCurrentCallback( isCurrent => inView => {
+        if (isCurrent() && inView) dispatch(incrementArticleViews(id));
+    });
 
     return (
         <div className="container py-5">
             <div className="row">
                 <div className='col-md-12'>
                     {
-                        isFetchingArticle
+                        (isFetchingArticle || isDeleting)
                             ? (
                                 <Spinner className='position-absolute center-relative'/>
                             ) : (
@@ -72,9 +83,14 @@ function ArticlePage() {
                                             article &&
                                             <React.Fragment>
                                                 {
-                                                    isCreated && (
+                                                    (isCreated || isUpdated) && (
                                                         <div className='alert alert-success alert-dismissible'>
-                                                            Your article was created successfully. Be the first one to read it!
+                                                            {
+                                                                isCreated
+                                                                    ? 'Your article was successfully created. Be the first one to read it!'
+                                                                    : 'Your article was successfully updated.'
+                                                            }
+
                                                         </div>
                                                     )
                                                 }
@@ -88,7 +104,7 @@ function ArticlePage() {
                                                 {
                                                     !!article.has_cover_photo &&
                                                     <ImageView
-                                                        src={article.cover_photo}
+                                                        src={`${article.cover_photo}?${Date.now()}`}
                                                         className='w-100 mb-5'
                                                         style={{height: '256px'}}
                                                         imageStyle={{objectFit: 'cover'}}

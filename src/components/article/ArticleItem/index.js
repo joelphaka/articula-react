@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from "react";
 import moment from "moment";
-import {Link} from "react-router-dom";
+import {Link, useHistory} from "react-router-dom";
 import {isFunction} from 'lodash'
 import classes from './ArticleItem.module.css'
 import LikeButton from "../../like/LikeButton";
@@ -9,8 +9,8 @@ import ItemButton from "../../ui/ItemButton";
 import ImageView from "../../ui/ImageView";
 
 function ArticleItem(props) {
-    const {article, onClick} = props;
-
+    const {article, onClick, returnUrlAfterEdit} = props;
+    const history = useHistory();
 
     return (
         <React.Fragment>
@@ -27,7 +27,7 @@ function ArticleItem(props) {
                             to={`/article/${article.title_id}`}
                             className="d-block flex-grow-0 order-1 order-md-0">
                             <ImageView
-                                src={article.cover_photo}
+                                src={`${article.cover_photo}?${Date.now()}`}
                                 className={`card-img ${classes['article-cover']}`}
                                 alt={article.title}
                             />
@@ -67,6 +67,22 @@ function ArticleItem(props) {
                                         {article.views || 'No views'}
                                     </span>
                                 </ItemButton>
+                                {
+                                    article.user.is_auth_user &&
+                                        <React.Fragment>
+                                            &nbsp;&bull;&nbsp;
+                                            <ItemButton
+                                                className='item-button'
+                                                onClick={() => {
+                                                    const url = `/article/edit/${article.id}${returnUrlAfterEdit?`?returnUrl=${returnUrlAfterEdit}`:''}`
+                                                    history.push(url)
+                                                }}>
+                                                <i className='fa fa-edit'></i>
+                                                &nbsp;
+                                                <span className='text-small'>Edit</span>
+                                            </ItemButton>
+                                        </React.Fragment>
+                                }
                             </div>
                         </div>
                     </div>

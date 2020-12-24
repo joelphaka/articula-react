@@ -25,12 +25,13 @@ function BootstrapTemplate (props) {
         onOk,
         onCancel,
         children,
+        component,
         footer,
         hasFooter = true,
     } = props;
 
     return (
-        <div className={`modal-content${className ? ' ' + className : ''}`}>
+        <div className={`modal-content`}>
             <div className={`modal-header bg-${theme || "primary"} text-light ${classes['modal-header']}`}>
                 <h5 className="modal-title">{title}</h5>
                 <button
@@ -38,17 +39,23 @@ function BootstrapTemplate (props) {
                     className="close no-outline text-light"
                     data-dismiss="modal"
                     aria-label="Close"
-                    onClick={onClose}>
+                    onClick={() => {
+                        if (_.isFunction(onClose)) onClose();
+                    }}>
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div className={`modal-body${bodyClass ? ' ' + bodyClass : ''}`}>
                 {
-                    children && (
-                        _.isFunction(children)
-                            ? children(props)
-                            : children
-                    )
+                    (() => {
+                        if (component) {
+                            const Component = component;
+
+                            return <Component {...props}/>
+                        } else {
+                            return children;
+                        }
+                    })()
                 }
             </div>
             {
@@ -65,7 +72,7 @@ function BootstrapTemplate (props) {
                                     disabled={!isOkEnabled}
                                     onClick={(e) => {
                                         if (_.isFunction(onOk)) onOk(e);
-                                        if (isOkDismiss) onClose('ok');
+                                        if (isOkDismiss && _.isFunction(onClose)) onClose('ok');
                                     }}
                                 >
                                     {okText}
@@ -79,7 +86,9 @@ function BootstrapTemplate (props) {
                                     disabled={!isCancelEnabled}
                                     onClick={(e) => {
                                         if (_.isFunction(onCancel)) onCancel(e);
-                                        onClose('cancel');
+                                        if (_.isFunction(onClose)) {
+                                            onClose('cancel');
+                                        }
                                     }}
                                 >
                                     {cancelText}

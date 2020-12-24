@@ -12,14 +12,13 @@ function RoutedComponent (props) {
     const currentUrl = buildUrl(location)
     const query = useQueryParams();
 
-
     if (requiresAuth) {
         if (!auth.isLoggedIn) {
             const returnUrl = !(location.pathname.startsWith('/logout') || location.pathname.startsWith('/login'))
                 ? currentUrl
                 : null;
 
-            return <Redirect from={location.pathname} to={`/login${returnUrl ? `?returnUrl=${returnUrl}` : ''}`}/>
+            return <Redirect from={location.pathname} to={`/login${returnUrl?`?returnUrl=${returnUrl}`:''}`}/>
         }
     }
 

@@ -12,7 +12,8 @@ function ArticleList(props) {
         onLoadMore,
         isFetching,
         onSelect,
-        page = 1
+        page = 1,
+        returnUrlAfterEdit,
     } = props;
 
     return (
@@ -28,6 +29,7 @@ function ArticleList(props) {
                         <ArticleItem
                             key={article.id}
                             article={article}
+                            returnUrlAfterEdit={returnUrlAfterEdit}
                             onClick={() => {
                                 if (isFunction(onSelect)) onSelect(article);
                             }}

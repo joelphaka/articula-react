@@ -3,10 +3,15 @@ import NavBar from "./NavBar";
 import _ from 'lodash'
 import Sidebar from "./Sidebar";
 import Spinner from "../ui/Spinner";
+import Modal from "../ui/Modal";
+import {closeErrorDialog} from "../../store/uiReducer";
+import {useSelector, useDispatch} from "react-redux";
 
-function MasterLayout({children}) {
+function MasterLayout({children, ...rest}) {
+    const {errorDialog} = useSelector(state => state.ui);
     const [isSidebarOpen, setSidebarOpen] = useState(false);
-    const [isLoading, setLoading] = useState(false);
+    const [isLoading, setLoading] = useState(false)
+    const dispatch = useDispatch();
 
     return (
         <React.Fragment>
@@ -27,6 +32,13 @@ function MasterLayout({children}) {
                         </div>
                     ):  _.isFunction(children) ? children() : children
             }
+            <Modal
+                title="Error"
+                children="An error occurred. Please tr"
+                {...errorDialog}
+                isCancelVisible={false}
+                onClose={() => dispatch(closeErrorDialog())}
+            />
         </React.Fragment>
     );
 }

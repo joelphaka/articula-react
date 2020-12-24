@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {NavLink, Redirect, useLocation, useParams} from "react-router-dom";
 import {isFunction} from 'lodash';
 import MasterLayout from "../MasterLayout";
@@ -10,6 +10,7 @@ import AvatarModal from "../../avatar/AvatarModal";
 import {StatusCodes} from "http-status-codes";
 import moment from "moment";
 import Promise from "bluebird"
+import useCurrentEffect from "../../../hooks/useCurrentEffect";
 
 function ProfileLayout({children}) {
     const wrapperRef = useRef();
@@ -42,7 +43,7 @@ function ProfileLayout({children}) {
 
     window.scroll(0,0)
 
-    useEffect(() => {
+    useCurrentEffect(() => {
         /**
          * If the there's no user profile in store (user)
          * OR the username does not equal to that of the user in store (isCurrentUser)
@@ -53,12 +54,8 @@ function ProfileLayout({children}) {
          */
         if (!user || !isCurrentUser /*|| (isCurrentUser && secondsSinceLastFetch > 30)*/) {
             Promise.try(() => {
-                if (user) {
-                    console.log(`UNLOADING PROFILE {${user.username}}`);
-                    dispatch(unloadUserProfile());
-                }
+                if (user) dispatch(unloadUserProfile());
             }).then(() => {
-                console.log(`LOADING PROFILE {${params.username}}`);
                 dispatch(loadUserProfile(params.username));
             });
         }

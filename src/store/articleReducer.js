@@ -44,7 +44,7 @@ const initialState = {
     liker: {
         currentArticle: null,
         isLiking: false,
-        likeError: null,
+        error: null,
     },
     creator: {
         isCreating: false,
@@ -59,7 +59,7 @@ const initialState = {
     deleter: {
         isDeleting: false,
         error: null,
-        deleteArticle: null,
+        deletedArticle: null,
     }
 }
 
@@ -150,10 +150,10 @@ const articleSlice = createSlice({
             state.liker.isLiking = false;
         },
         likeArticleFailed: (state, {payload}) => {
-            state.liker.likeError = payload;
+            state.liker.error = payload;
         },
         clearLikeError: state => {
-            state.liker.likeError = null;
+            state.liker.error = null;
         },
 
         articleChanged: (state, {payload}) => {
@@ -201,7 +201,7 @@ const articleSlice = createSlice({
         articleCreated: (state, {payload}) => {
             Object.assign(state, {
                 initialState,
-                ...{create: {createdArticle: payload}}
+                ...{creator: {createdArticle: payload}}
             });
         },
         createArticleFailed: (state, {payload}) => {
@@ -209,6 +209,9 @@ const articleSlice = createSlice({
         },
         createArticleCompleted: state => {
             state.creator.isCreating = false
+        },
+        clearCreateError: state => {
+            state.creator.error = null;
         },
         unsetCreatedArticle: state => {
             state.creator.createdArticle = null
@@ -226,6 +229,9 @@ const articleSlice = createSlice({
         updateArticleCompleted: state => {
             state.updater.isUpdating = false
         },
+        clearUpdateError: state => {
+            state.updater.error = null;
+        },
         unsetUpdatedArticle: state => {
             state.updater.updatedArticle = null
         },
@@ -236,15 +242,19 @@ const articleSlice = createSlice({
         articleDeleted: (state, {payload}) => {
             state.articles = state.articles.filter(a => a.id !== payload.id);
             state.profile.articles = state.profile.articles.filter(a => a.id !== payload.id);
+            state.deleter.deletedArticle = payload;
         },
         deleteArticleCompleted: state => {
-            state.deleter.isDeleting = true;
+            state.deleter.isDeleting = false;
         },
         deleteArticleFailed: (state, {payload}) => {
             state.deleter.error = payload;
         },
         clearDeleteError: state => {
             state.deleter.error = null;
+        },
+        unsetDeletedArticle: state => {
+            state.deleter.deletedArticle = null;
         },
 
         clearAllArticles: state => {
@@ -295,11 +305,13 @@ const {
     articleCreated,
     createArticleFailed,
     createArticleCompleted,
+    clearCreateError,
 
     updateArticleRequested,
     articleUpdated,
     updateArticleFailed,
     updateArticleCompleted,
+    clearUpdateError,
 
     deleteArticleRequested,
     articleDeleted,
@@ -316,6 +328,7 @@ export const {
     clearProfileArticles,
     unsetCreatedArticle,
     unsetUpdatedArticle,
+    unsetDeletedArticle,
 } = actions;
 
 // Export the reducer, either as a default or named export
@@ -326,7 +339,10 @@ export const loadArticles = (query) => async (dispatch, getState) => {
         dispatch(fetchArticlesRequested());
         const {data, meta} = await articleService.fetchArticles(query);
         dispatch(articlesFetched({data, meta}));
-        dispatch(clearArticlesError());
+
+        if (getState().article.fetchArticlesError) {
+            dispatch(clearArticlesError());
+        }
     } catch (e) {
         dispatch(fetchArticlesFailed(formatError(e)));
     } finally {
@@ -342,7 +358,9 @@ export const loadUserArticles = (username, query) => async (dispatch, getState) 
         dispatch(fetchProfileArticlesRequested());
         const {data, meta} = await profileService.fetchUserArticles(username, query);
         dispatch(profileArticlesFetched({data, meta}));
-        dispatch(clearProfileArticlesError());
+        if (getState().article.profile.error) {
+            dispatch(clearProfileArticlesError());
+        }
     } catch (e) {
         dispatch(fetchProfileArticlesFailed(formatError(e)));
     } finally {
@@ -353,13 +371,15 @@ export const loadUserArticles = (username, query) => async (dispatch, getState) 
     }
 }
 
-export const loadArticle = (id) => async dispatch => {
+export const loadArticle = (id) => async (dispatch, getState) => {
     try {
         dispatch(fetchArticleRequested());
         const article = await articleService.fetchArticle(id)
-
         dispatch(articleFetched(article));
-        dispatch(clearArticleError());
+
+        if (getState().article.fetchArticleError) {
+            dispatch(clearArticleError());
+        }
     } catch (e) {
         dispatch(fetchArticleFailed(formatError(e)));
     } finally {
@@ -371,7 +391,7 @@ export const emptyUserArticles = () => dispatch => {
     dispatch(clearProfileArticles());
 }
 
-export const likeOrUnlikeArticle = (article) => async dispatch => {
+export const likeOrUnlikeArticle = (article) => async (dispatch, getState) => {
     try {
         dispatch(likeArticleRequested(article))
         const updatedArticle = !article.is_liked
@@ -379,7 +399,10 @@ export const likeOrUnlikeArticle = (article) => async dispatch => {
             : await articleService.unlikeArticle(article.id);
 
         dispatch(articleChanged(updatedArticle));
-        dispatch(clearLikeError());
+
+        if (getState().article.liker.error) {
+            dispatch(clearLikeError());
+        }
     } catch (e) {
         dispatch(likeArticleFailed(formatError(e)));
     } finally {
@@ -387,12 +410,15 @@ export const likeOrUnlikeArticle = (article) => async dispatch => {
     }
 }
 
-export const incrementArticleViews = (id) => async dispatch => {
+export const incrementArticleViews = (id) => async (dispatch, getState) => {
     try {
         dispatch(viewArticleRequested());
         const article = await articleService.incrementArticleViews(id);
         dispatch(articleChanged(article));
-        dispatch(clearViewArticleError());
+
+        if (getState().article.viewer.error) {
+            dispatch(clearViewArticleError());
+        }
     } catch (e) {
         dispatch(viewArticleFailed(formatError(e)));
     } finally {
@@ -400,11 +426,15 @@ export const incrementArticleViews = (id) => async dispatch => {
     }
 }
 
-export const createArticle = data => async dispatch => {
+export const createArticle = data => async (dispatch, getState) => {
     try {
         dispatch(createArticleRequested())
         const article = await articleService.createArticle(data);
-        dispatch(articleCreated(article))
+        dispatch(articleCreated(article));
+
+        if (getState().article.creator.error) {
+            dispatch(clearCreateError());
+        }
     } catch (e) {
         dispatch(createArticleFailed(formatError(e)));
     } finally {
@@ -412,11 +442,16 @@ export const createArticle = data => async dispatch => {
     }
 }
 
-export const updateArticle = data => async dispatch => {
+export const updateArticle = data => async (dispatch, getState) => {
     try {
         dispatch(updateArticleRequested())
         const article = await articleService.updateArticle(data);
-        dispatch(articleUpdated(article))
+        dispatch(articleUpdated(article));
+        dispatch(articleChanged(article));
+
+        if (getState().article.updater.error) {
+            dispatch(clearUpdateError());
+        }
     } catch (e) {
         dispatch(updateArticleFailed(formatError(e)));
     } finally {
@@ -424,13 +459,16 @@ export const updateArticle = data => async dispatch => {
     }
 }
 
-export const deleteArticle = article => async dispatch => {
+export const deleteArticle = article => async (dispatch, getState) => {
     try {
         dispatch(deleteArticleRequested())
         const id = isObject(article) ? article.id : article;
-        const article = await articleService.deleteArticle(id);
-        dispatch(articleDeleted(article));
-        dispatch(clearDeleteError());
+        const deletedArticle = await articleService.deleteArticle(id);
+        dispatch(articleDeleted(deletedArticle));
+
+        if (getState().article.deleter.error) {
+            dispatch(clearDeleteError());
+        }
     } catch (e) {
         dispatch(deleteArticleFailed(formatError(e)));
     } finally {
