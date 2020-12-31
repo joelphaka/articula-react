@@ -1,7 +1,7 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router-dom";
-import {deleteArticle, unsetDeletedArticle} from "../../store/articleReducer";
+import {deleteArticle} from "../../store/articleReducer";
 import {isFunction} from "lodash";
 import Modal from "../ui/Modal";
 import useCurrentEffect from "../../hooks/useCurrentEffect";
@@ -17,7 +17,6 @@ function DeleteArticleDialog(props) {
     } = props;
 
     const {
-        isDeleting,
         deletedArticle,
         error
     } = useSelector(state => state.article.deleter);
