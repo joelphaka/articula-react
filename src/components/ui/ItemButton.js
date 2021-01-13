@@ -11,7 +11,7 @@ function ItemButton(props) {
     return (
         <button
             className={`btn${className?` ${className}`:''}`}
-            style={{borderRadius: '45%', padding: '2px 6px', ...style}}
+            style={{borderRadius: '20%', padding: '2px 6px', ...style}}
             {...rest}>
             {children}
         </button>
