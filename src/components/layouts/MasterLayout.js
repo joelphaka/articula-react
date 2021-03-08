@@ -1,27 +1,20 @@
 import React, {useState} from 'react';
 import NavBar from "./NavBar";
-import _ from 'lodash'
+import {isFunction} from 'lodash'
 import Sidebar from "./Sidebar";
 import Spinner from "../ui/Spinner";
 import Modal from "../ui/Modal";
 import {closeErrorDialog} from "../../store/uiReducer";
 import {useSelector, useDispatch} from "react-redux";
 
-function MasterLayout({children, ...rest}) {
-    const {errorDialog} = useSelector(state => state.ui);
-    const [isSidebarOpen, setSidebarOpen] = useState(false);
+function MasterLayout({children}) {
+    const {errorDialog, isAppSidebarOpen} = useSelector(state => state.ui);
     const [isLoading, setLoading] = useState(false)
     const dispatch = useDispatch();
 
     return (
         <React.Fragment>
-            <NavBar onMenuButtonClick={() => setSidebarOpen(!isSidebarOpen)}/>
-            <Sidebar
-                isOpen={isSidebarOpen}
-                onClose={() => {
-                    if (isSidebarOpen) setSidebarOpen(false);
-                }}
-            />
+            <NavBar/>
             {
                 isLoading ?
                     (
@@ -30,7 +23,11 @@ function MasterLayout({children, ...rest}) {
                                 <Spinner/>
                             </div>
                         </div>
-                    ):  _.isFunction(children) ? children() : children
+                    ) : isFunction(children) ? children() : children
+            }
+            {
+                isAppSidebarOpen &&
+                <Sidebar/>
             }
             <Modal
                 title="Error"

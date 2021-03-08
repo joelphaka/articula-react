@@ -1,16 +1,16 @@
-import React, {useState} from "react";
+import React, {useEffect} from "react";
 import withMasterLayout from "../../components/layouts/withMasterLayout";
 import SearchLayout from "../../components/layouts/SearchLayout";
 import UserSearchBox from "../../components/search/UserSearchBox";
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router-dom";
 import useQueryParams from "../../hooks/useQueryParams";
-import useCurrentEffect from "../../hooks/useCurrentEffect";
 import {searchUsers} from "../../store/searchReducer";
-import useCurrentCallback from "../../hooks/useCurrentCallback";
 import useComponentDidUpdate from "../../hooks/useComponentDidUpdate";
 import {stringifyUrl} from "query-string";
 import UserList from "../../components/user/UserList";
+import useStateIfMounted from "../../hooks/useStateIfMounted";
+import useCurrentEffect from "../../hooks/useCurrentEffect";
 
 function SearchUsersPage() {
     const {
@@ -22,20 +22,16 @@ function SearchUsersPage() {
     const history = useHistory();
     const dispatch = useDispatch();
     const {q} = useQueryParams();
-    const [query, setQuery] = useState(() => Object({
+    const [query, setQuery] = useStateIfMounted(() => Object({
         'query': q ? q : '',
         page: meta.current_page,
         per_page: meta.per_page,
     }));
     const searchPath = '/search/users';
 
-    useCurrentEffect(() => {
-        if (!!query.query?.trim().length) dispatch(searchUsers(query));
-    }, []);
+    useCurrentEffect(() => !!query.query?.trim() && dispatch(searchUsers(query)), []);
 
-    const handleValueUpdate = useCurrentCallback(isCurrent => v => {
-        if (isCurrent()) setQuery(p => Object({...p, page: 1, 'query': v}));
-    });
+    const handleValueUpdate = v => setQuery(p => Object({...p, page: 1, 'query': v}));
 
     useComponentDidUpdate(() => handleValueUpdate(q), [q])
     useComponentDidUpdate(() => dispatch(searchUsers(query)), [query]);

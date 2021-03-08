@@ -1,6 +1,6 @@
 import React from 'react';
-import RegisterForm from "../../../components/auth/RegisterForm";
-import withMasterLayout from "../../../components/layouts/withMasterLayout";
+import RegisterForm from "../../components/auth/RegisterForm";
+import withMasterLayout from "../../components/layouts/withMasterLayout";
 
 function RegisterPage() {
     return (

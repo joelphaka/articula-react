@@ -1,5 +1,5 @@
 import React from 'react';
-import MasterLayout from "../../../components/layouts/MasterLayout";
+import MasterLayout from "../../components/layouts/MasterLayout";
 
 function WelcomePage() {
     return (

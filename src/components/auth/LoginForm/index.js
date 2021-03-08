@@ -11,7 +11,6 @@ import {loginUser} from "../../../store/authReducer";
 import Spinner from "../../ui/Spinner";
 import {useDispatch, useSelector} from "react-redux";
 import {Link} from "react-router-dom";
-import useCurrentCallback from "../../../hooks/useCurrentCallback";
 import {StatusCodes} from "http-status-codes";
 
 
@@ -34,10 +33,9 @@ function LoginForm() {
     const auth = useSelector(state => state.auth);
     const dispatch = useDispatch();
 
-    const handSubmit = useCurrentCallback((isCurrent) =>
-        async (values) => {
-            if (!auth.isLoggingIn) await dispatch(loginUser(values));
-        })
+    const handSubmit = async (values) => {
+        if (!auth.isLoggingIn) await dispatch(loginUser(values));
+    }
 
     function renderError() {
         if (!auth.error) return null;
@@ -48,7 +46,7 @@ function LoginForm() {
                     (() => {
                         if (auth.error.status === StatusCodes.BAD_REQUEST || auth.error.status === StatusCodes.UNAUTHORIZED) {
                             return 'Incorrect email or password.'
-                        } else if (auth.error.status === 500) {
+                        } else {
                             return 'An error occurred. Please try again later.'
                         }
                     })()

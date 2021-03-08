@@ -1,9 +1,10 @@
-import React, {useRef, useState} from "react";
+import React, {useRef} from "react";
 import PropTypes from 'prop-types';
 import {isFunction, isObject} from "lodash";
 import SearchInput from "./SearchInput";
 import useDebounce from "../../hooks/useDebounce";
 import useCurrentEffect from "../../hooks/useCurrentEffect";
+import useStateIfMounted from "../../hooks/useStateIfMounted";
 
 function AutoComplete(props) {
     const {
@@ -28,9 +29,9 @@ function AutoComplete(props) {
     } = props;
 
     const debounce = useDebounce();
-    const [isSuggestionOpen, setSuggestionOpen] = useState(false);
-    const [value, setValue] = useState(inputValue ?? '');
-    const [activeIndex, setActiveIndex] = useState(-1);
+    const [isSuggestionOpen, setSuggestionOpen] = useStateIfMounted(false);
+    const [value, setValue] = useStateIfMounted(inputValue ?? '');
+    const [activeIndex, setActiveIndex] = useStateIfMounted(-1);
     const inputRef = useRef();
 
     useCurrentEffect((isCurrent) => {

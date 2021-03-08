@@ -1,21 +1,23 @@
-import React, {useState} from 'react';
-import {Link, useParams, useHistory, Redirect} from 'react-router-dom'
-import useCurrentCallback from "../../../hooks/useCurrentCallback";
-import useCurrentEffect from "../../../hooks/useCurrentEffect";
+import React from 'react';
+import {useParams, Redirect, useHistory} from 'react-router-dom'
 import {useSelector, useDispatch} from "react-redux";
 import {
     loadArticle,
     incrementArticleViews,
     unsetCreatedArticle,
     unsetUpdatedArticle,
-} from "../../../store/articleReducer";
-import withMasterLayout from "../../../components/layouts/withMasterLayout";
+} from "../../store/articleReducer";
+import withMasterLayout from "../../components/layouts/withMasterLayout";
 import {StatusCodes} from "http-status-codes";
-import Spinner from "../../../components/ui/Spinner";
-import ImageView from "../../../components/ui/ImageView";
-import ArticleHeader from "../../../components/article/ArticleHeader";
+import Spinner from "../../components/ui/Spinner";
+import ImageView from "../../components/ui/ImageView";
+import ArticleHeader from "../../components/article/ArticleHeader";
 import {InView} from "react-intersection-observer";
-import useComponentDidUpdate from "../../../hooks/useComponentDidUpdate";
+import useComponentDidUpdate from "../../hooks/useComponentDidUpdate";
+import useIsMounted from "../../hooks/useIsMounted";
+import useCurrentEffect from "../../hooks/useCurrentEffect";
+import useStateIfMounted from "../../hooks/useStateIfMounted";
+import {showErrorDialog} from "../../store/uiReducer";
 
 
 function ArticlePage() {
@@ -25,43 +27,51 @@ function ArticlePage() {
         fetchArticleError: error,
         creator: {createdArticle},
         updater: {updatedArticle},
-        deleter: {isDeleting}
+        deleter: {deletedArticle, isDeleting, error: deleterError}
     } = useSelector(state => state.article);
     const dispatch = useDispatch();
+    const history = useHistory();
+    const isMounted = useIsMounted();
     const {id} = useParams();
-    const [isCreated, setCreated] = useState(false);
-    const [isUpdated, setUpdated] = useState(false);
+    const [isCreated, setCreated] = useStateIfMounted(false);
+    const [isUpdated, setUpdated] = useStateIfMounted(false);
 
     useCurrentEffect(() => {
-        window.scroll(0, 0);
-        dispatch(loadArticle(id));
+        if (/*d !== article?.id && */!deletedArticle) {
+            window.scroll(0, 0);
+            dispatch(loadArticle(id));
+        }
 
-    }, []);
+    }, [id, deletedArticle]);
 
     useComponentDidUpdate(() => {
-        if (article) {
+        if (article && !deletedArticle) {
             if (createdArticle && article.id === createdArticle.id) {
-                dispatch(unsetCreatedArticle())
+                dispatch(unsetCreatedArticle());
                 setCreated(true);
                 setUpdated(false)
             } else if (updatedArticle && article.id === updatedArticle.id) {
-                dispatch(unsetUpdatedArticle())
+                dispatch(unsetUpdatedArticle());
                 setUpdated(true);
                 setCreated(false);
             }
         }
-    }, [article]);
+    }, [article, deletedArticle]);
 
-    const handleViewChange = useCurrentCallback( isCurrent => inView => {
-        if (isCurrent() && inView) dispatch(incrementArticleViews(id));
-    });
+    useComponentDidUpdate(() => {
+        if (deletedArticle) history.replace('/')
+    }, [deletedArticle])
+
+    useComponentDidUpdate(() => deleterError && dispatch(showErrorDialog()), [deleterError])
+
+    const handleInView = inView => (isMounted() && inView) && dispatch(incrementArticleViews(id));
 
     return (
         <div className="container py-5">
             <div className="row">
                 <div className='col-md-12'>
                     {
-                        (isFetchingArticle || isDeleting)
+                        (isFetchingArticle || isDeleting || deletedArticle)
                             ? (
                                 <Spinner className='position-absolute center-relative'/>
                             ) : (
@@ -99,7 +109,7 @@ function ArticlePage() {
                                                     as='div'
                                                     children={null}
                                                     triggerOnce={true}
-                                                    onChange={handleViewChange}
+                                                    onChange={handleInView}
                                                 />
                                                 {
                                                     !!article.has_cover_photo &&

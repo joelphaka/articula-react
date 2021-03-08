@@ -2,7 +2,7 @@ import {createSlice} from '@reduxjs/toolkit'
 import {
     DEFAULT_ARTICLE_FILTER,
     DEFAULT_PAGINATION_META, DEFAULT_PER_PAGE,
-    getPaginatedData
+    getPaginatedData, notifyArticleChanged
 } from "./common";
 import {searchService} from "../services/api";
 import {formatError} from "../lib/utils";
@@ -105,6 +105,13 @@ const searchSlice = createSlice({
             state.articleSearch.error = null;
             state.userSearch.error = null;
         }
+    },
+    extraReducers: {
+        [notifyArticleChanged.type]: (state, {payload}) => {
+            const index = state.articleSearch.articles.findIndex(article => article.id === payload.id);
+
+            if (index > -1) state.articleSearch.articles[index] = payload;
+        },
     }
 });
 
@@ -151,7 +158,7 @@ export const searchArticles = params => async (dispatch, getState) => {
         }
     }
 }
-export const searchUsers = (params, reFetch = false) => async (dispatch, getState) => {
+export const searchUsers = (params) => async (dispatch, getState) => {
     try {
         if (getState().search.error) dispatch(clearSearchError());
 

@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {likeOrUnlikeArticle} from "../../store/articleReducer";
 import ItemButton from "../ui/ItemButton";

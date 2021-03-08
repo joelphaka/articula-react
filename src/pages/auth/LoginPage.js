@@ -1,6 +1,6 @@
 import React from 'react';
-import LoginForm from "../../../components/auth/LoginForm";
-import withMasterLayout from "../../../components/layouts/withMasterLayout";
+import LoginForm from "../../components/auth/LoginForm";
+import withMasterLayout from "../../components/layouts/withMasterLayout";
 
 function LoginPage() {
     return (

@@ -1,10 +1,10 @@
-import React, {useState} from "react";
+import React from "react";
 import SearchBox from "./SearchBox";
 import {searchUsers} from "../../services/api/search-service";
 import {Link} from "react-router-dom";
-import UserAvatar from "../avatar/UserAvatar";
+import UserAvatar from "../user/UserAvatar";
 import {stringifyUrl} from "query-string";
-import useCurrentCallback from "../../hooks/useCurrentCallback";
+import useStateIfMounted from "../../hooks/useStateIfMounted";
 
 function UserSearchBox(props) {
     const {
@@ -12,11 +12,9 @@ function UserSearchBox(props) {
         value: inputValue,
         ...rest
     } = props;
-    const [value, setValue] = useState(inputValue);
+    const [value, setValue] = useStateIfMounted(inputValue);
 
-    const handleSearch = useCurrentCallback(isCurrent =>({value: v}) => {
-        if (isCurrent()) setValue(v);
-    });
+    const handleSearch = ({value: v}) => setValue(v);
 
     return (
         <SearchBox

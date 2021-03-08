@@ -1,9 +1,8 @@
-import React, {useEffect, useState} from 'react';
-import withMasterLayout from "../../../components/layouts/withMasterLayout";
-import CreateArticleForm from "../../../components/article/CreateArticleForm";
+import React from 'react';
+import withMasterLayout from "../../components/layouts/withMasterLayout";
+import CreateArticleForm from "../../components/article/CreateArticleForm";
 
 function CreateArticlePage() {
-
 
     return (
         <div className="container py-5">

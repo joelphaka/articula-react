@@ -1,10 +1,10 @@
 import React, {useRef, useState} from 'react';
 import {useDispatch, useSelector} from "react-redux";
-import Modal from "../../ui/Modal";
-import {validateFile} from '../../../lib/validators'
-import {uploadAvatar, removeAvatar} from "../../../store/avatarReducer";
-import Spinner from "../../ui/Spinner";
-import useComponentDidUpdate from "../../../hooks/useComponentDidUpdate";
+import Modal from "../ui/Modal";
+import {validateFile} from '../../lib/validators'
+import {uploadAvatar, removeAvatar} from "../../store/avatarReducer";
+import Spinner from "../ui/Spinner";
+import useComponentDidUpdate from "../../hooks/useComponentDidUpdate";
 
 
 function AvatarModal(props) {
@@ -38,13 +38,13 @@ function AvatarModal(props) {
         e.preventDefault();
     }
 
-    function handleFileDrop(e) {
+    async function handleFileDrop(e) {
         e.preventDefault();
-        onFileSelected(e.dataTransfer.files[0])
+        await onFileSelected(e.dataTransfer.files[0])
     }
 
-    function handleFileChange({currentTarget}) {
-        onFileSelected(currentTarget.files[0])
+    async function handleFileChange({currentTarget}) {
+        await onFileSelected(currentTarget.files[0])
     }
 
     async function onFileSelected(file) {

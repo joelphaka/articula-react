@@ -11,6 +11,9 @@ import ProfilePage from "../pages/profile/ProfilePage";
 import UserArticlesPage from "../pages/profile/UserArticlesPage";
 import CreateArticlePage from "../pages/article/CreateArticlePage";
 import EditArticlePage from "../pages/article/EditArticlePage";
+import RoutedComponent from "./RoutedComponent";
+import SearchArticlePage from "../pages/search/SearchArticlesPage";
+import SearchUsersPage from "../pages/search/SearchUsersPage";
 
 const routes =  [
     {
@@ -47,6 +50,18 @@ const routes =  [
         path: '/u/:username/articles',
         component: UserArticlesPage,
         title: "User Articles",
+        requiresAuth: true,
+    },
+    {
+        path: '/search/articles',
+        component: SearchArticlePage,
+        title: "Search Articles",
+        requiresAuth: true,
+    },
+    {
+        path: '/search/users',
+        component: SearchUsersPage,
+        title: "Search People",
         requiresAuth: true,
     },
     {
@@ -88,3 +103,4 @@ const routes =  [
 
 export default routes;
 
+export {RoutedComponent}

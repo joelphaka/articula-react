@@ -1,7 +1,7 @@
 import React from "react";
 import {isFunction} from "lodash";
 import {Link} from "react-router-dom";
-import UserAvatar from "../avatar/UserAvatar";
+import UserAvatar from "./UserAvatar";
 
 function UserItem(props) {
     const {user, onClick} = props;

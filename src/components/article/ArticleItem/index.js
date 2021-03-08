@@ -1,10 +1,10 @@
-import React, {useEffect, useRef, useState} from "react";
+import React from "react";
 import moment from "moment";
 import {Link, useHistory} from "react-router-dom";
 import {isFunction} from 'lodash'
 import classes from './ArticleItem.module.css'
 import LikeButton from "../../like/LikeButton";
-import UserAvatar from "../../avatar/UserAvatar";
+import UserAvatar from "../../user/UserAvatar";
 import ItemButton from "../../ui/ItemButton";
 import ImageView from "../../ui/ImageView";
 
@@ -30,6 +30,7 @@ function ArticleItem(props) {
                                 src={`${article.cover_photo}?${Date.now()}`}
                                 className={`card-img ${classes['article-cover']}`}
                                 alt={article.title}
+                                title={article.title}
                             />
                         </Link>
                     }

@@ -3,8 +3,8 @@ import withMasterLayout from "./withMasterLayout";
 import {NavLink} from "react-router-dom";
 import useQueryParams from "../../hooks/useQueryParams";
 import {useDispatch, useSelector} from "react-redux";
-import useCurrentEffect from "../../hooks/useCurrentEffect";
 import {resetSearch} from "../../store/searchReducer";
+import useCurrentEffect from "../../hooks/useCurrentEffect";
 
 function SearchLayout(props) {
     const {
@@ -21,7 +21,7 @@ function SearchLayout(props) {
 
     const {q} = useQueryParams();
 
-    useCurrentEffect(() => () => dispatch(resetSearch()), [])
+    useCurrentEffect(() => dispatch(resetSearch()), [])
 
     return (
         <div className="container py-5">

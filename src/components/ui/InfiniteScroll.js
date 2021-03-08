@@ -35,8 +35,7 @@ function InfiniteScroll(props) {
                 {isFunction(children) ? children() : children}
                 {
                     !isFetching &&
-                    <div ref={ref} style={{backgroundColor: 'transparent', height: '1px'}}>
-                    </div>
+                    <div ref={ref} style={{backgroundColor: 'transparent', height: '1px'}}></div>
                 }
             </div>
             {

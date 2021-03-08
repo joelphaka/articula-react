@@ -1,11 +1,11 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {useDispatch, useSelector} from "react-redux";
 import {updateArticle} from "../../store/articleReducer";
 import useComponentDidUpdate from "../../hooks/useComponentDidUpdate";
-import useCurrentCallback from "../../hooks/useCurrentCallback";
 import {useHistory, Prompt} from "react-router-dom";
 import ArticleForm from "./ArticleForm";
 import useQueryParams from "../../hooks/useQueryParams";
+import useStateIfMounted from "../../hooks/useStateIfMounted";
 
 
 function EditArticleForm({article}) {
@@ -14,7 +14,7 @@ function EditArticleForm({article}) {
         error,
         updatedArticle
     } = useSelector(state => state.article.updater);
-    const [hasChanges, setHasChanges] = useState(false);
+    const [hasChanges, setHasChanges] = useStateIfMounted(false);
     const dispatch = useDispatch();
     const history = useHistory();
     const {returnUrl} = useQueryParams();
@@ -26,19 +26,17 @@ function EditArticleForm({article}) {
         }
     }, [updatedArticle]);
 
-    const handleChange = useCurrentCallback(isCurrent => values => {
-        if (isCurrent()) {
-            const isEdited =
-                article && (
-                    article.title !== values.title?.trim() ||
-                    article.content !== values.content?.trim() ||
-                    !!values.cover_photo ||
-                    !!values.remove_cover_photo
-                )
+    const handleChange = values => {
+        const isEdited =
+            article && (
+                article.title !== values.title?.trim() ||
+                article.content !== values.content?.trim() ||
+                !!values.cover_photo ||
+                !!values.remove_cover_photo
+            );
 
-            setHasChanges(isEdited);
-        }
-    });
+        setHasChanges(isEdited);
+    };
 
     const handleSubmit = async values => await dispatch(updateArticle(values));
 

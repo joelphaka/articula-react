@@ -1,17 +1,17 @@
-import React, {useState} from "react";
-import UserAvatar from "../avatar/UserAvatar";
+import React from "react";
+import UserAvatar from "../user/UserAvatar";
 import {Link, useHistory} from "react-router-dom";
 import moment from "moment";
 import ItemButton from "../ui/ItemButton";
 import LikeButton from "../like/LikeButton";
 import DeleteArticleDialog from "./DeleteArticleDialog";
 import {useSelector} from "react-redux";
+import useStateIfMounted from "../../hooks/useStateIfMounted";
 
 function ArticleHeader({article, className}) {
     const {isDeleting} = useSelector(state => state.article.deleter);
     const history = useHistory();
-    const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
-
+    const [isDeleteDialogOpen, setDeleteDialogOpen] = useStateIfMounted(false);
 
     return (
         <React.Fragment>
@@ -45,18 +45,19 @@ function ArticleHeader({article, className}) {
                                     }
                                 </div>
                                 {
-                                    moment(article.updated_at).isAfter(article.created_at) && (
-                                        <React.Fragment>
-                                            <div className='mx-1'>&bull;</div>
-                                            <div>
-                                                Updated {
-                                                moment(article.updated_at).diff(moment(article.created_at), 'days') === 0
-                                                    ? moment(article.updated_at).fromNow()
-                                                    : moment(article.updated_at).format('MMM DD, YYYY [at] H:mm')
-                                            }
-                                            </div>
-                                        </React.Fragment>
-                                    )
+                                    moment(article.updated_at).isAfter(article.created_at) &&
+                                    moment(article.updated_at).diff(moment(article.created_at), 'seconds') > 30 &&
+                                    <React.Fragment>
+                                        <div className='mx-1'>&bull;</div>
+                                        <div>
+                                            Updated {
+                                            moment(article.updated_at).diff(moment(article.created_at), 'days') === 0
+                                                ? moment(article.updated_at).fromNow()
+                                                : moment(article.updated_at).format('MMM DD, YYYY [at] H:mm')
+                                        }
+                                        </div>
+                                    </React.Fragment>
+
                                 }
                             </div>
 

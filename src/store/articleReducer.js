@@ -2,17 +2,13 @@ import {createSlice} from "@reduxjs/toolkit"
 import {articleService, profileService} from "../services/api";
 import {formatError} from "../lib/utils";
 import {isObject} from "lodash";
-
-
-const DEFAULT_PER_PAGE = 3;
-const DEFAULT_PAGINATION_META = { current_page: 1, last_page: 1, per_page: DEFAULT_PER_PAGE };
-const FILTERS = [
-    {value: 'created_at_desc', label: 'Latest', sort: {sort_by: 'created_at', sort_direction: 'desc'}},
-    {value: 'created_at_asc', label: 'Oldest', sort: {sort_by: 'created_at', sort_direction: 'asc'}},
-    {value: 'likes_count', label: 'Most liked', sort: {sort_by: 'likes_count', sort_direction: 'desc'}},
-    {value: 'views', label: 'Most viewed', sort: {sort_by: 'views', sort_direction: 'desc'}},
-];
-const DEFAULT_FILTER = FILTERS[0];
+import {
+    ARTICLE_FILTERS,
+    DEFAULT_ARTICLE_FILTER,
+    DEFAULT_PAGINATION_META,
+    getPaginatedData,
+    notifyArticleChanged
+} from "./common";
 
 const initialState = {
     articles: [],
@@ -21,8 +17,8 @@ const initialState = {
     isFiltering: false,
     lastFetchTime: null,
     fetchArticlesError: null,
-    filters: FILTERS,
-    currentFilter: DEFAULT_FILTER,
+    filters: ARTICLE_FILTERS,
+    currentFilter: DEFAULT_ARTICLE_FILTER,
 
     article: null,
     isFetchingArticle: false,
@@ -31,7 +27,7 @@ const initialState = {
     profile: {
         articles: [],
         meta: DEFAULT_PAGINATION_META,
-        currentFilter: DEFAULT_FILTER,
+        currentFilter: DEFAULT_ARTICLE_FILTER,
         isFetching: false,
         isFiltering: false,
         error: null,
@@ -60,7 +56,7 @@ const initialState = {
         isDeleting: false,
         error: null,
         deletedArticle: null,
-    }
+    },
 }
 
 const articleSlice = createSlice({
@@ -78,22 +74,17 @@ const articleSlice = createSlice({
         },
         articlesFetched: (state, {payload}) => {
             state.meta = payload.meta;
-
-            if (state.meta.current_page <= 1) {
-                state.articles = payload.data;
-            } else {
-                const mappedIDs = state.articles.map(article => article.id);
-
-                state.articles = [...state.articles, ...payload.data.filter(article => {
-                    return !mappedIDs.includes(article.id);
-                })]
-            }
+            state.articles = getPaginatedData(
+                state.articles,
+                payload.data,
+                payload.meta
+            );
         },
         clearArticlesError: state => {
             state.fetchArticlesError = null
         },
 
-        filterArticles: (state, {payload}) =>{
+        filterArticles: (state, {payload}) => {
             state.currentFilter = payload;
             state.isFiltering = true;
 
@@ -113,22 +104,17 @@ const articleSlice = createSlice({
         },
         profileArticlesFetched: (state, {payload}) => {
             state.profile.meta = payload.meta;
-
-            if (state.profile.meta.current_page <= 1) {
-                state.profile.articles = payload.data;
-            } else {
-                const mappedIDs = state.profile.articles.map(article => article.id);
-
-                state.profile.articles = [...state.profile.articles, ...payload.data.filter(article => {
-                    return !mappedIDs.includes(article.id);
-                })]
-            }
+            state.profile.articles = getPaginatedData(
+                state.profile.articles,
+                payload.data,
+                payload.meta
+            );
         },
         clearProfileArticles: state => {
             state.profile = initialState.profile;
         },
 
-        filterProfileArticles: (state, {payload}) =>{
+        filterProfileArticles: (state, {payload}) => {
             state.profile.currentFilter = payload;
             state.profile.isFiltering = true;
         },
@@ -154,16 +140,6 @@ const articleSlice = createSlice({
         },
         clearLikeError: state => {
             state.liker.error = null;
-        },
-
-        articleChanged: (state, {payload}) => {
-            const indexInArticles = state.articles.findIndex(article => article.id === payload.id);
-            const indexInProfileArticles = state.profile.articles.findIndex(article => article.id === payload.id);
-
-            if (state.article?.id === payload.id) state.article = payload;
-
-            if (indexInArticles > -1) state.articles[indexInArticles] = payload;
-            if (indexInProfileArticles > -1) state.profile.articles[indexInProfileArticles] = payload;
         },
 
         fetchArticleRequested: state => {
@@ -200,7 +176,7 @@ const articleSlice = createSlice({
         },
         articleCreated: (state, {payload}) => {
             Object.assign(state, {
-                initialState,
+                ...initialState,
                 ...{creator: {createdArticle: payload}}
             });
         },
@@ -261,6 +237,17 @@ const articleSlice = createSlice({
             Object.assign(state, initialState)
         },
     },
+    extraReducers: {
+        [notifyArticleChanged.type]: (state, {payload}) => {
+            const indexInArticles = state.articles.findIndex(article => article.id === payload.id);
+            const indexInProfileArticles = state.profile.articles.findIndex(article => article.id === payload.id);
+
+            if (state.article?.id === payload.id) state.article = payload;
+
+            if (indexInArticles > -1) state.articles[indexInArticles] = payload;
+            if (indexInProfileArticles > -1) state.profile.articles[indexInProfileArticles] = payload;
+        }
+    }
 })
 
 
@@ -279,8 +266,6 @@ const {
     fetchProfileArticlesFailed,
     fetchProfileArticlesCompleted,
     clearProfileArticlesError,
-
-    articleChanged,
 
     likeArticleRequested,
     likeArticleCompleted,
@@ -318,7 +303,6 @@ const {
     deleteArticleCompleted,
     deleteArticleFailed,
     clearDeleteError,
-
 } = actions
 
 export const {
@@ -398,7 +382,7 @@ export const likeOrUnlikeArticle = (article) => async (dispatch, getState) => {
             ? await articleService.likeArticle(article.id)
             : await articleService.unlikeArticle(article.id);
 
-        dispatch(articleChanged(updatedArticle));
+        dispatch(notifyArticleChanged(updatedArticle));
 
         if (getState().article.liker.error) {
             dispatch(clearLikeError());
@@ -414,7 +398,7 @@ export const incrementArticleViews = (id) => async (dispatch, getState) => {
     try {
         dispatch(viewArticleRequested());
         const article = await articleService.incrementArticleViews(id);
-        dispatch(articleChanged(article));
+        dispatch(notifyArticleChanged(article));
 
         if (getState().article.viewer.error) {
             dispatch(clearViewArticleError());
@@ -447,7 +431,7 @@ export const updateArticle = data => async (dispatch, getState) => {
         dispatch(updateArticleRequested())
         const article = await articleService.updateArticle(data);
         dispatch(articleUpdated(article));
-        dispatch(articleChanged(article));
+        dispatch(notifyArticleChanged(article));
 
         if (getState().article.updater.error) {
             dispatch(clearUpdateError());

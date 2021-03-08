@@ -1,6 +1,6 @@
-import React, {useState} from "react";
+import React from "react";
 import AutoComplete from "../ui/AutoComplete";
-import useCurrentCallback from "../../hooks/useCurrentCallback";
+import useStateIfMounted from "../../hooks/useStateIfMounted";
 
 function SearchBox(props) {
     const {
@@ -12,27 +12,24 @@ function SearchBox(props) {
         ...rest
     } = props;
 
-    const [response, setResponse] = useState({meta: {}, data: []});
-    const [isSearching, setSearching] = useState(false);
-    const [value, setValue] = useState(inputValue ?? '');
+    const [response, setResponse] = useStateIfMounted({meta: {}, data: []});
+    const [isSearching, setSearching] = useStateIfMounted(false);
+    const [value, setValue] = useStateIfMounted(inputValue ?? '');
 
-    const handleChange = useCurrentCallback(isCurrent => async (value) => {
+    const handleChange = async (value) => {
         try {
-            if (isCurrent()) {
-                setValue(value);
-                setSearching(true);
-            }
+            setValue(value);
+            setSearching(true);
 
             const {meta, data} = await searchCallback({query: value, per_page: maxItems});
 
-            if (isCurrent()) setResponse({meta, data});
-            //if (isFunction(onSearch)) onSearch({value, meta, data});
+            setResponse({meta, data});
         } catch (e) {
             console.log(e);
         } finally {
-            if (isCurrent()) setSearching(false);
+            setSearching(false);
         }
-    });
+    };
 
     return (
         <AutoComplete

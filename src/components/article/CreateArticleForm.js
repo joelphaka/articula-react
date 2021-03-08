@@ -1,10 +1,10 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {useDispatch, useSelector} from "react-redux";
 import {createArticle} from "../../store/articleReducer";
 import useComponentDidUpdate from "../../hooks/useComponentDidUpdate";
 import {useHistory, Prompt} from "react-router-dom";
 import ArticleForm from "./ArticleForm";
-import useCurrentCallback from "../../hooks/useCurrentCallback";
+import useStateIfMounted from "../../hooks/useStateIfMounted";
 
 
 function CreateArticleForm() {
@@ -13,7 +13,7 @@ function CreateArticleForm() {
         error,
         createdArticle
     } = useSelector(state => state.article.creator);
-    const [hasChanges, setHasChanges] = useState(false);
+    const [hasChanges, setHasChanges] = useStateIfMounted(false);
     const dispatch = useDispatch();
     const history = useHistory();
 
@@ -26,15 +26,13 @@ function CreateArticleForm() {
 
     const handleSubmit = async values => await dispatch(createArticle(values));
 
-    const handleChange = useCurrentCallback(isCurrent => values => {
-        if (isCurrent()) {
-            setHasChanges(() => (
-                !!values.title?.trim() ||
-                !!values.content?.trim() ||
-                !!values.cover_photo
-            ));
-        }
-    });
+    const handleChange = values => {
+        setHasChanges(() => (
+            !!values.title?.trim() ||
+            !!values.content?.trim() ||
+            !!values.cover_photo
+        ));
+    };
 
     return (
         <React.Fragment>

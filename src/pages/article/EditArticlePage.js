@@ -1,13 +1,13 @@
-import React, {useEffect, useState} from 'react';
-import withMasterLayout from "../../../components/layouts/withMasterLayout";
-import EditArticleForm from "../../../components/article/EditArticleForm";
+import React, {useEffect} from 'react';
+import withMasterLayout from "../../components/layouts/withMasterLayout";
+import EditArticleForm from "../../components/article/EditArticleForm";
 import {useParams, Redirect} from "react-router-dom";
-import useCurrentEffect from "../../../hooks/useCurrentEffect";
-import {loadArticle} from "../../../store/articleReducer";
+import {loadArticle} from "../../store/articleReducer";
 import {useSelector, useDispatch} from "react-redux";
-import Spinner from "../../../components/ui/Spinner";
+import Spinner from "../../components/ui/Spinner";
+import useCurrentEffect from "../../hooks/useCurrentEffect";
 
-function UpdateArticlePage() {
+function EditArticlePage() {
     const {
         article,
         isFetchingArticle,
@@ -16,10 +16,7 @@ function UpdateArticlePage() {
     const dispatch = useDispatch();
     const {id} = useParams();
 
-
-    useCurrentEffect(() => {
-        dispatch(loadArticle(id));
-    }, []);
+    useCurrentEffect(() => dispatch(loadArticle(id)), [id]);
 
     return (
         <div className="container py-5 position-relative">
@@ -39,11 +36,9 @@ function UpdateArticlePage() {
                         }
                     </React.Fragment>
             }
-            {
-                isFetchingArticle && <Spinner className='center-relative position-fixed'/>
-            }
+            {isFetchingArticle && <Spinner className='center-relative position-fixed'/>}
         </div>
     )
 }
 
-export default withMasterLayout(UpdateArticlePage)
+export default withMasterLayout(EditArticlePage)

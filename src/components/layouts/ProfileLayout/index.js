@@ -5,19 +5,20 @@ import MasterLayout from "../MasterLayout";
 import classes from './ProfileLayout.module.css'
 import {loadUserProfile, unloadUserProfile} from "../../../store/profileReducer";
 import {useDispatch, useSelector} from "react-redux";
-import UserAvatar from "../../avatar/UserAvatar";
+import UserAvatar from "../../user/UserAvatar";
 import AvatarModal from "../../avatar/AvatarModal";
 import {StatusCodes} from "http-status-codes";
 import moment from "moment";
 import Promise from "bluebird"
 import useCurrentEffect from "../../../hooks/useCurrentEffect";
+import useStateIfMounted from "../../../hooks/useStateIfMounted";
 
 function ProfileLayout({children}) {
     const wrapperRef = useRef();
     const sidebarRef = useRef();
     const toggleIconRef = useRef();
     const {pathname} = useLocation();
-    const [isAvatarOpen, setAvatarOpen] = useState(false);
+    const [isAvatarOpen, setAvatarOpen] = useStateIfMounted(false);
     const dispatch = useDispatch();
     const auth = useSelector(state => state.auth);
     const _profile = useSelector(state => state.profile);
@@ -59,9 +60,9 @@ function ProfileLayout({children}) {
                 dispatch(loadUserProfile(params.username));
             });
         }
-    }, [user, isCurrentUser]);
+    }, [user, isCurrentUser, params.username]);
 
-    function renderError() {
+    const renderError = () => {
         if (userError.status === StatusCodes.NOT_FOUND) {
             return <Redirect to={'/not-found'}/>
         }
@@ -73,7 +74,7 @@ function ProfileLayout({children}) {
         )
     }
 
-    function handleToggleClick({currentTarget: toggleButton}) {
+    const handleToggleClick = ({currentTarget: toggleButton}) => {
         const sidebarDisplay = getComputedStyle(sidebarRef.current).display;
 
         if (sidebarDisplay === 'none') {
@@ -127,7 +128,7 @@ function ProfileLayout({children}) {
                                             {`${user.first_name} ${user.last_name}`}
                                         </p>
                                         <div>
-                                            <ul className='nav-pills-tabs nav-bg-blue mx-sm-auto'>
+                                            <ul className='nav-pills-tabs nav-bg-blue mx-sm-auto text-light'>
                                                 <li className='bg-secondary nav-pills-tabs-item'>
                                                     <NavLink
                                                         to={`${pathname==='/u'||pathname==='/u/'&&user.is_auth_user?pathname:`/u/${user.username}`}`}

@@ -49,6 +49,7 @@ function UserAvatar(props) {
             className={className}
             alt={`${user.first_name} ${user.last_name}`}
             isRounded={isRounded}
+            title={`${user.first_name} ${user.last_name}`}
             style={{
                 width: `${size?`${size}px`:'100%'}`,
                 height: `${size?`${size}px`:'100%'}`,

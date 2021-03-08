@@ -16,7 +16,7 @@ export const API_PROFILE                = API_URL + '/profile';
 export const API_TIMELINE_ARTICLES      = API_URL + '/timeline/articles';
 export const API_TIMELINE_COMMENTS      = API_URL + '/timeline/comments';
 
-export const API_SEARCH_PEOPLE          = API_URL + '/search/users';
+export const API_SEARCH_USERS           = API_URL + '/search/users';
 export const API_SEARCH_ARTICLES        = API_URL + '/search/articles';
 
 export const API_AVATARS                = API_URL + '/avatars'

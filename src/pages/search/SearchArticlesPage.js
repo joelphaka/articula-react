@@ -1,18 +1,17 @@
-import React, {useState} from "react";
+import React, {useEffect} from "react";
 import {useHistory} from "react-router-dom";
 import withMasterLayout from "../../components/layouts/withMasterLayout";
 import ArticleSearchBox from "../../components/search/ArticleSearchBox";
 import useQueryParams from "../../hooks/useQueryParams";
-import useCurrentEffect from "../../hooks/useCurrentEffect";
 import ArticleList from "../../components/article/ArticleList";
 import {useDispatch, useSelector} from "react-redux";
 import {searchArticles, filterSearchedArticles} from "../../store/searchReducer";
 import useComponentDidUpdate from "../../hooks/useComponentDidUpdate";
 import {stringifyUrl} from "query-string";
 import SearchLayout from "../../components/layouts/SearchLayout";
-import useCurrentCallback from "../../hooks/useCurrentCallback";
 import SimpleFilter from "../../components/ui/SimpleFilter";
 import {ARTICLE_FILTERS} from "../../store/common";
+import useStateIfMounted from "../../hooks/useStateIfMounted";
 
 function SearchArticlesPage() {
     const {
@@ -25,7 +24,7 @@ function SearchArticlesPage() {
     const history = useHistory();
     const dispatch = useDispatch();
     const {q} = useQueryParams();
-    const [query, setQuery] = useState(() => Object({
+    const [query, setQuery] = useStateIfMounted(() => Object({
         'query': q ?? '',
         page: meta.current_page,
         per_page: meta.per_page,
@@ -33,13 +32,11 @@ function SearchArticlesPage() {
     }));
     const searchPath = '/search/articles';
 
-    useCurrentEffect(() => {
-        if (!!query.query?.trim().length) dispatch(searchArticles(query));
+    useEffect(() => {
+        if (!!query.query?.trim()) dispatch(searchArticles(query));
     }, []);
 
-    const handleValueUpdate = useCurrentCallback(isCurrent => v => {
-        if (isCurrent()) setQuery(p => Object({...p, page: 1, 'query': v}));
-    })
+    const handleValueUpdate = v => setQuery(p => Object({...p, page: 1, 'query': v}));
 
     useComponentDidUpdate(() => handleValueUpdate(q), [q])
     useComponentDidUpdate(() => dispatch(searchArticles(query)), [query]);

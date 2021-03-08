@@ -1,15 +1,15 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {useDispatch, useSelector} from "react-redux";
-import useCurrentEffect from "../../../hooks/useCurrentEffect";
-import {loadUserArticles, filterProfileArticles} from "../../../store/articleReducer";
-import ArticleList from "../../../components/article/ArticleList";
-import withProfileLayout from "../../../components/layouts/withProfileLayout";
-import Spinner from "../../../components/ui/Spinner";
-import useWindowSize from "../../../hooks/useWindowSize";
-import useComponentDidUpdate from "../../../hooks/useComponentDidUpdate";
-import SimpleFilter from "../../../components/ui/SimpleFilter";
-import ListLoader from "../../../components/ui/ListLoader";
-import useCurrentUrl from "../../../hooks/useCurrentUrl";
+import {loadUserArticles, filterProfileArticles} from "../../store/articleReducer";
+import ArticleList from "../../components/article/ArticleList";
+import withProfileLayout from "../../components/layouts/withProfileLayout";
+import Spinner from "../../components/ui/Spinner";
+import useWindowSize from "../../hooks/useWindowSize";
+import useComponentDidUpdate from "../../hooks/useComponentDidUpdate";
+import SimpleFilter from "../../components/ui/SimpleFilter";
+import ListLoader from "../../components/ui/ListLoader";
+import useCurrentUrl from "../../hooks/useCurrentUrl";
+import useStateIfMounted from "../../hooks/useStateIfMounted";
 
 function UserArticlesPage({profile: {user}}) {
     const {
@@ -20,7 +20,7 @@ function UserArticlesPage({profile: {user}}) {
         currentFilter
     } = useSelector(state => state.article.profile);
     const {filters} = useSelector(state => state.article);
-    const [query, setQuery] = useState({
+    const [query, setQuery] = useStateIfMounted({
         page: meta.current_page,
         per_page: meta.per_page,
         ...currentFilter.sort
@@ -29,8 +29,8 @@ function UserArticlesPage({profile: {user}}) {
     const dispatch = useDispatch();
     const currentUrl = useCurrentUrl();
 
-    useCurrentEffect(() => {
-        if (articles.length === 0) dispatch(loadUserArticles(user.username, query));
+    useEffect(() => {
+        if (!articles.length) dispatch(loadUserArticles(user.username, query));
     }, []);
 
     useComponentDidUpdate(() => dispatch(loadUserArticles(user.username, query)), [query])

@@ -1,7 +1,8 @@
 import {createAction} from "@reduxjs/toolkit";
-import {isObject, isArray} from "lodash";
+import {isObject} from "lodash";
 
 export const logout = createAction('LOGOUT');
+export const notifyArticleChanged = createAction('ARTICLE_CHANGED');
 
 export const DEFAULT_PER_PAGE = 3;
 

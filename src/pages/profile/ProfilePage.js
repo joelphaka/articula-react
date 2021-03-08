@@ -1,6 +1,6 @@
 import React from 'react';
 import moment from "moment";
-import withProfileLayout from "../../../components/layouts/withProfileLayout";
+import withProfileLayout from "../../components/layouts/withProfileLayout";
 
 function ProfilePage({profile: {user}}) {
 

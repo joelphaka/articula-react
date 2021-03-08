@@ -1,9 +1,9 @@
-import React, {useState} from "react";
+import React from "react";
 import SearchBox from "./SearchBox";
 import {searchArticles} from "../../services/api/search-service";
 import {Link} from "react-router-dom";
 import {stringifyUrl} from "query-string";
-import useCurrentCallback from "../../hooks/useCurrentCallback";
+import useStateIfMounted from "../../hooks/useStateIfMounted";
 
 function ArticleSearchBox(props) {
     const {
@@ -11,11 +11,9 @@ function ArticleSearchBox(props) {
         value: inputValue,
         ...rest
     } = props;
-    const [value, setValue] = useState(inputValue);
+    const [value, setValue] = useStateIfMounted(inputValue);
 
-    const handleSearch = useCurrentCallback(isCurrent =>({value: v}) =>{
-        if (isCurrent()) setValue(v)
-    });
+    const handleSearch =  ({value: v}) => setValue(v);
 
     return (
         <SearchBox

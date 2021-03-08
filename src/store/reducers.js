@@ -1,9 +1,10 @@
-import {combineReducers} from 'redux';
-import authReducer from './authReducer';
-import avatarReducer from "./avatarReducer"
-import uiReducer from './uiReducer';
-import articleReducer from './articleReducer'
-import profileReducer from './profileReducer'
+import {combineReducers} from "redux";
+import authReducer from "./authReducer";
+import avatarReducer from "./avatarReducer";
+import uiReducer from "./uiReducer";
+import articleReducer from "./articleReducer";
+import profileReducer from "./profileReducer";
+import searchReducer from "./searchReducer";
 import {logout} from "./common";
 
 const combineReducer = combineReducers({
@@ -11,12 +12,13 @@ const combineReducer = combineReducers({
     avatar: avatarReducer,
     article: articleReducer,
     profile: profileReducer,
+    search: searchReducer,
     ui: uiReducer,
 })
 
 const rootReducer = (state, action) => {
     if (action.type === logout.type) {
-        state = undefined
+        state = undefined;
     }
 
     return combineReducer(state, action);
