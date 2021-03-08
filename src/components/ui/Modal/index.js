@@ -1,10 +1,10 @@
-import React, {useEffect, useState} from "react";
+import React from "react";
 import ReactModal from 'react-modal'
 import {isFunction} from 'lodash'
 import BootstrapTemplate from "./BoostrapTemplate/BoostrapTemplate";
 import useWindowSize from "../../../hooks/useWindowSize";
-import useCurrentEffect from "../../../hooks/useCurrentEffect";
-import useCurrentCallback from "../../../hooks/useCurrentCallback";
+import useStateIfMounted from "../../../hooks/useStateIfMounted";
+import useComponentDidUpdate from "../../../hooks/useComponentDidUpdate";
 
 ReactModal.setAppElement("#root");
 
@@ -30,22 +30,19 @@ function Modal(props) {
         ...props
     };
 
-    const [isVisible, setVisible] = useState(isOpen);
+    const [isVisible, setVisible] = useStateIfMounted(isOpen);
     const {'width': windowWidth, 'height': windowHeight} = useWindowSize();
     const modalWidth = Number.isInteger(width) ? (width > windowWidth ? '95%' : `${width}px`) : (width ?? 'auto');
     const modalHeight = Number.isInteger(height) ? (height > windowHeight ? '95%' : `${height}px`) : (height ?? 'auto');
 
-    useCurrentEffect((isCurrent) => {
-        if (isCurrent()) setVisible(isOpen);
-    },[isOpen]);
+    useComponentDidUpdate(() => setVisible(isOpen),[isOpen]);
 
-
-    const handleClose = useCurrentCallback(isCurrent =>  {
-        if (isCurrent() && isFunction(onClose)) {
+    const handleClose = () =>  {
+        if (isFunction(onClose)) {
             setVisible(false);
             onClose();
         }
-    });
+    };
 
     return (
         <React.Fragment>

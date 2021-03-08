@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {likeOrUnlikeArticle} from "../../store/articleReducer";
 import ItemButton from "../ui/ItemButton";
@@ -10,6 +10,7 @@ function LikeButton({className, disabled, article}) {
     return (
         <ItemButton
             className={`${className ? `${className} ` : ''}item-button`}
+            style={{borderRadius: '50%'}}
             disabled={(isLiking && currentArticle?.id === article.id) || disabled}
             onClick={() => {
                 if (!isLiking) dispatch(likeOrUnlikeArticle(article));

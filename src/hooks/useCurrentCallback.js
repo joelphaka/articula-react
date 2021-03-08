@@ -1,5 +1,6 @@
-import {useCallback, useEffect} from "react";
+import {useCallback, useEffect, useRef} from "react";
 import {isFunction} from "lodash"
+import useIsMounted from "./useIsMounted";
 
 /**
  * Create useCurrentCallback with a parameter to track the life of the callback
@@ -9,20 +10,11 @@ import {isFunction} from "lodash"
  * the original callback's isCurrent state param will be set to false
  */
 export default function useCurrentCallback(callback, deps) {
-    let isCurrent = true;
-    const currentCheck = () => isCurrent;
-
-    // useEffect clean up to react to the dependencies changing
-    useEffect(
-        () => () => {
-            isCurrent = false;
-        },
-        deps // eslint-disable-line react-hooks/exhaustive-deps
-    );
+    const isMounted = useIsMounted();
 
     // create the callback using the factory function, injecting the current check function
     return useCallback(function () {
-        const callbackResult = callback(currentCheck);
+        const callbackResult = callback(isMounted);
 
         return isFunction(callbackResult) ? callbackResult(...arguments) : callbackResult;
     }, deps);

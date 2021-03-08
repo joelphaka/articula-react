@@ -1,16 +1,17 @@
-import React, {useState, useRef} from 'react';
+import React, {useRef} from 'react';
 import {Form, Formik} from "formik";
 import FormControl from "../ui/Form/FormControl";
 import * as Yup from "yup";
 import FileInput from "../ui/Form/FileInput";
 import {validateImageFile} from "../../lib/validators";
 import useComponentDidUpdate from "../../hooks/useComponentDidUpdate";
-import useCurrentCallback from "../../hooks/useCurrentCallback";
 import {MESSAGE_REQUIRED} from "../../lib/validation.messages";
 import Modal from "../ui/Modal";
 import ImageView from "../ui/ImageView";
 import Spinner from "../ui/Spinner";
 import {isFunction} from "lodash";
+import useStateIfMounted from "../../hooks/useStateIfMounted";
+import useIsMounted from "../../hooks/useIsMounted";
 
 
 const validationSchema = Yup.object({
@@ -33,11 +34,11 @@ function ArticleForm(props) {
         onChange,
         onError
     } = props;
-    const [coverPhotoFile, setCoverPhotoFile] = useState();
-    const [removeCoverPhoto, setRemoveCoverPhoto] = useState(false);
-
+    const isMounted = useIsMounted();
+    const [coverPhotoFile, setCoverPhotoFile] = useStateIfMounted();
+    const [removeCoverPhoto, setRemoveCoverPhoto] = useStateIfMounted(false);
+    const [isImageModalOpen, setImageModalOpen] = useStateIfMounted(false);
     const formRef = useRef();
-    const [isImageModalOpen, setImageModalOpen] = useState(false);
 
     const initialValues = {
         title: article?.title ?? '',
@@ -46,7 +47,7 @@ function ArticleForm(props) {
 
     useComponentDidUpdate(isCurrent => {
         if (error) {
-            if (isCurrent()) {
+            if (isMounted()) {
                 if (error.isValidation) {
                     formRef.current.setErrors({
                         ...formRef.current.errors,
@@ -73,20 +74,18 @@ function ArticleForm(props) {
         }
     }
 
-    const handleFileChange = useCurrentCallback(isCurrent => async (file) => {
+    const handleFileChange = async (file) => {
         try {
             const MAX_FILESIZE = process.env.REACT_APP_MAX_FILESIZE;
 
             await validateImageFile(file, MAX_FILESIZE);
 
-            if (isCurrent()) {
-                setCoverPhotoFile(file);
-                clearFileError();
-            }
+            setCoverPhotoFile(file);
+            clearFileError();
 
         } catch (e) {
-            if (isCurrent()) {
-                if (error.isValidation) {
+            if (isMounted()) {
+                if (e.isValidation) {
                     formRef.current.setErrors({
                         ...formRef.current.errors,
                         ...{cover_photo: e.errors[0]}
@@ -94,40 +93,40 @@ function ArticleForm(props) {
 
                 }
 
-                if (isFunction(onError)) onError(error);
+                if (isFunction(e)) onError(e);
             }
         }
-    }, []);
+    };
 
-    const handleFileRemove = useCurrentCallback(isCurrent => () => {
-        if (isCurrent() && coverPhotoFile) {
-            setCoverPhotoFile(null);
-            clearFileError();
+    const handleFileRemove = () => {
+        setCoverPhotoFile(null);
+        clearFileError();
 
-            if(isFunction(onChange)) {
-                const values = formRef.current.values;
-                delete values.cover_photo;
-
-                onChange(values);
-            }
-        }
-    });
-
-    const handleChange = useCurrentCallback(isCurrent => ({target}) => {
-        if (isCurrent()) {
+        if(isFunction(onChange) && isMounted()) {
             const values = formRef.current.values;
-            if (target.type === 'checkbox') {
-                if (!target.checked) delete values[target.name];
-                else values[target.name] = target.value
-            } else {
-                values[target.name] = (target.type === 'file') ? target.files[0] : target.value;
-            }
+            delete values.cover_photo;
 
-            if (isFunction(onChange)) onChange(values);
+            onChange(values);
         }
-    });
+    };
+
+    const handleChange = ({target}) => {
+        if (!isMounted()) return ;
+
+        const values = formRef.current.values;
+        if (target.type === 'checkbox') {
+            if (!target.checked) delete values[target.name];
+            else values[target.name] = target.value
+        } else {
+            values[target.name] = (target.type === 'file') ? target.files[0] : target.value;
+        }
+
+        if (isFunction(onChange)) onChange(values);
+    };
 
     const clearFileError = () => {
+        if (!isMounted()) return;
+
         let formErrors = formRef.current.errors;
         delete formErrors.cover_photo;
 

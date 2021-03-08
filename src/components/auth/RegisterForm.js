@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React from 'react';
 import {Formik, Form, Field} from 'formik'
 import FormControl from "../../components/ui/Form/FormControl";
 import * as Yup from 'yup'
@@ -13,10 +13,10 @@ import {formatError} from "../../lib/utils";
 import {useHistory} from "react-router-dom";
 import {authService} from "../../services/api";
 import Spinner from "../ui/Spinner";
-import useCurrentCallback from "../../hooks/useCurrentCallback";
 import {useDispatch, useSelector} from "react-redux";
 import {loginUser} from "../../store/authReducer";
 import useComponentDidUpdate from "../../hooks/useComponentDidUpdate";
+import useStateIfMounted from "../../hooks/useStateIfMounted";
 
 
 const validationSchema = Yup.object({
@@ -51,17 +51,16 @@ const initialValues = {
 };
 
 function RegisterForm({className = ''}) {
-    const [error, setError] = useState(null);
+    const [error, setError] = useStateIfMounted(null);
     const history = useHistory();
     const dispatch = useDispatch();
     const auth = useSelector(state => state.auth);
-    const didUpdateRef = useRef(false);
 
     useComponentDidUpdate(() => {
         if (auth.error) history.replace('/login')
-    }, [auth.error])
+    }, [auth.error]);
 
-    const handleSubmit = useCurrentCallback((isCurrent => async (values, form) => {
+    const handleSubmit = async (values, form) => {
         try {
             await authService.register(values);
             const {email, password} = values;
@@ -69,16 +68,11 @@ function RegisterForm({className = ''}) {
 
         } catch (e) {
             const responseError = formatError(e);
+            setError(responseError);
 
-            if (isCurrent()) {
-                setError(responseError);
-
-                if (responseError.isValidation) {
-                    form.setErrors(responseError.errors);
-                }
-            }
+            if (responseError.isValidation) form.setErrors(responseError.errors);
         }
-    }))
+    };
 
     return (
         <Formik

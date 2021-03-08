@@ -5,7 +5,7 @@ function withMasterLayout (ContentComponent) {
     return ({isLoading, ...rest}) => {
         return (
             <MasterLayout isLoading={isLoading}>
-                {<ContentComponent { ...rest}/>}
+                <ContentComponent {...rest}/>
             </MasterLayout>
         )
     }

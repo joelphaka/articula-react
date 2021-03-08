@@ -1,15 +1,14 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {useDispatch} from "react-redux";
 import {logoutUser} from "../../store/authReducer";
 import Spinner from "../ui/Spinner";
+import useCurrentEffect from "../../hooks/useCurrentEffect";
 
 
 function Logout() {
     const dispatch = useDispatch();
 
-    useEffect(() => {
-        dispatch(logoutUser())
-    },[])
+    useCurrentEffect(() => dispatch(logoutUser()), [])
 
     return (
         <div className="container">

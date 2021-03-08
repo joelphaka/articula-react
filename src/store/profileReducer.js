@@ -34,7 +34,7 @@ const profileSlice = createSlice({
         },
         errorsCleared: (state) => {
             state.userError = null;
-        }
+        },
     }
 })
 
@@ -48,7 +48,7 @@ export const {
     profileFetched,
     profileFetchFailed,
     unloaded,
-    errorsCleared
+    errorsCleared,
 } = actions
 // Export the reducer, either as a default or named export
 export default reducer
@@ -73,4 +73,3 @@ export const unloadUserProfile = () => dispatch => {
     dispatch(unloaded());
     dispatch(emptyUserArticles());
 }
-

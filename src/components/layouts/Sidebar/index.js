@@ -1,35 +1,33 @@
-import React, {useEffect, useState} from 'react';
-import _ from 'lodash'
+import React from 'react';
 import classes from './Sidebar.module.css'
 import $ from 'jquery'
+import ImageView from "../../ui/ImageView";
+import {useSelector, useDispatch} from "react-redux";
+import {closeAppSidebar} from "../../../store/uiReducer";
+import {NavLink} from "react-router-dom";
 import useCurrentEffect from "../../../hooks/useCurrentEffect";
 
-function Sidebar({isOpen, onClose}) {
+function Sidebar() {
+    const {user, isLoggedIn} = useSelector(state => state.auth);
+    const dispatch = useDispatch();
 
     function handleBodyClick({target})  {
-        const navBarTogglerClass =  'navbar-toggler sidebar-toggler'
+        const navBarToggleClass =  'navbar-toggler sidebar-toggler'
         const isParentOfTarget = $(`.${classes.sidebar}`).find(target).length > 0;
-        const isSidebarToggler =
+        const isSidebarToggle =
             $(target).hasClass(`.${classes.sidebarToggler}`) ||
             $(target).parent().hasClass(`.${classes.sidebarToggler}`) ||
-            $(target).hasClass(navBarTogglerClass) ||
-            $(target).parent().hasClass(navBarTogglerClass) ||
+            $(target).hasClass(navBarToggleClass) ||
+            $(target).parent().hasClass(navBarToggleClass) ||
 
             $(target).parent().hasClass(`.${classes.sidebarToggler}`);
 
-        if (!isSidebarToggler && !isParentOfTarget) handleClose();
+        if (!isSidebarToggle && !isParentOfTarget) dispatch(closeAppSidebar());
     }
 
-    function handleClose () {
-        if (isVisible) {
-            setVisible(false);
-            if (_.isFunction(onClose)) onClose();
-        }
-    }
+    const DefaultBackdrop = () => (<div className='h-100 w-100' style={{backgroundColor: '#313131'}}></div>);
 
-    const [isVisible, setVisible] = useState(isOpen);
-
-    useEffect(() => {
+    useCurrentEffect(() => {
         const body  = $('body').on('click', handleBodyClick);
 
         return () => {
@@ -37,59 +35,51 @@ function Sidebar({isOpen, onClose}) {
         }
     }, [handleBodyClick]);
 
-    useCurrentEffect((isCurrent) => {
-        if(isCurrent()) setVisible(isOpen);
-    },[isOpen]);
-
     return (
-        isVisible &&
         <div className={classes.sidebar}>
             <div className={classes.header}>
                 <div className={`${classes.headerContent} align-items-center justify-content-center flex-column p-3`}>
                     <div>
 
                     </div>
-                    <h3 className="text-light mt-3 mb-0" style={{fontSize:'1.5rem', fontWeight: 400}}>
-                        John Doe
+                    <h3 className="text-light mt-3 mb-0" style={{fontSize:'1.5rem', fontWeight: 400, userSelect:'none'}}>
+                        {user.full_name}
                     </h3>
                 </div>
                 <button
                     className={classes.sidebarToggler}
-                    onClick={handleClose}>
+                    onClick={() => dispatch(closeAppSidebar())}>
                     &times;
                 </button>
-                <img
-                    src="http://articula.test/api/avatars/Rz8rY9OL4ov0aD3XPb37QNE5pMj16wAG.png"
-                    alt="Profile"
-                    className={classes.backdrop}/>
+                <div className={classes.backdrop} >
+                    {
+                        user.has_avatar
+                            ? <ImageView src={user.avatar} alt="Profile" className='h-100 w-100' errorView={<DefaultBackdrop/>}/>
+                            : <DefaultBackdrop/>
+                    }
+                </div>
             </div>
             <ul className={classes.menu}>
                 <li className={classes.menuItem}>
-                    <a href="/">
+                    <NavLink to="/" exact>
                         <i className={`${classes.icon} fa fa-home`}></i>
                         <div className={classes.name}>Home</div>
-                    </a>
+                    </NavLink>
                 </li>
                 <li className={classes.menuItem}>
-                    <a href="/">
-                        <i className={`${classes.icon} fa fa-book`}></i>
-                        <div className={classes.name}>Posts</div>
-                    </a>
-                </li>
-                <li className={classes.menuItem}>
-                    <a href="/">
+                    <NavLink to="/" exact>
                         <i className={`${classes.icon} fa fa-info`}></i>
                         <div className={classes.name}>About</div>
-                    </a>
+                    </NavLink>
                 </li>
             </ul>
             <div className={classes.footer}>
                 <ul className={classes.menu}>
                     <li className={classes.menuItem}>
-                        <a href="/">
+                        <NavLink to="/account" exact>
                             <i className={`${classes.icon} fa fa-user`}></i>
                             <div className={classes.name}>Account</div>
-                        </a>
+                        </NavLink>
                     </li>
                 </ul>
             </div>

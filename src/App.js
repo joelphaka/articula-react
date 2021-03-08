@@ -3,9 +3,8 @@ import {
     Switch,
     Route,
 } from "react-router-dom";
-import routes from "./routes";
+import routes, {RoutedComponent} from "./routes";
 import './App.css';
-import RoutedComponent from "./routes/RoutedComponent";
 
 function App() {
     return (

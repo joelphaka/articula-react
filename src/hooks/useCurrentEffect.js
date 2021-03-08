@@ -1,5 +1,6 @@
-import {useEffect} from "react";
+import {useEffect, useRef} from "react";
 import {isFunction} from "lodash";
+import useIsMounted from "./useIsMounted";
 
 /**
  * Create useEffect with a parameter to track the life of the effect
@@ -10,14 +11,13 @@ import {isFunction} from "lodash";
  * the result of the current check function will be false
  */
 export default function useCurrentEffect(callback, deps) {
+    const isMounted = useIsMounted();
 
     useEffect(() => {
-        let isCurrent = true;
-        const currentCheck = () => isCurrent;
-        const cleanup = callback(currentCheck);
+        const cleanup = callback(isMounted);
+
         return () => {
-            // We set the current flag to false in the cleanup
-            isCurrent = false;
+
             isFunction(cleanup) && cleanup();
         };
     }, deps); // eslint-disable-line react-hooks/exhaustive-deps

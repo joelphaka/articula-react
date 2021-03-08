@@ -6,7 +6,7 @@ const initialState = {
     errorDialog: {
         title: 'Error',
         children: 'An error occurred. Please try again later.',
-        isOpen: false,
+        isAppSidebarOpen: false,
     }
 }
 
@@ -29,6 +29,15 @@ const uiSlice = createSlice({
         },
         closeErrorDialog: state => {
             state.errorDialog.isOpen = false;
+        },
+        openAppSidebar: state => {
+            state.isAppSidebarOpen = true;
+        },
+        closeAppSidebar: state => {
+            state.isAppSidebarOpen = false;
+        },
+        toggleAppSidebar: state => {
+            state.isAppSidebarOpen = !state.isAppSidebarOpen;
         }
     }
 })
@@ -37,6 +46,12 @@ const uiSlice = createSlice({
 // Extract the action creators object and the reducer
 const { actions, reducer } = uiSlice
 // Extract and export each action creator by name
-export const {showErrorDialog, closeErrorDialog} = actions
+export const {
+    showErrorDialog,
+    closeErrorDialog,
+    openAppSidebar,
+    closeAppSidebar,
+    toggleAppSidebar,
+} = actions
 // Export the reducer, either as a default or named export
 export default reducer
