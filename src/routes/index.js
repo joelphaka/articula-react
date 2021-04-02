@@ -14,6 +14,7 @@ import EditArticlePage from "../pages/article/EditArticlePage";
 import RoutedComponent from "./RoutedComponent";
 import SearchArticlePage from "../pages/search/SearchArticlesPage";
 import SearchUsersPage from "../pages/search/SearchUsersPage";
+import CommentPage from "../pages/comment/CommentPage";
 
 const routes =  [
     {
@@ -38,6 +39,12 @@ const routes =  [
         path: '/article/:id',
         component: ArticlePage,
         title: "ArticlePage",
+        requiresAuth: true,
+    },
+    {
+        path: '/comment/:id',
+        component: CommentPage,
+        title: "CommentPage",
         requiresAuth: true,
     },
     {

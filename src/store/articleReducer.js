@@ -242,6 +242,7 @@ const articleSlice = createSlice({
             const indexInArticles = state.articles.findIndex(article => article.id === payload.id);
             const indexInProfileArticles = state.profile.articles.findIndex(article => article.id === payload.id);
 
+            console.log('ARTICLE ChANGED', payload)
             if (state.article?.id === payload.id) state.article = payload;
 
             if (indexInArticles > -1) state.articles[indexInArticles] = payload;

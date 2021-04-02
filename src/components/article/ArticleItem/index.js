@@ -68,6 +68,18 @@ function ArticleItem(props) {
                                         {article.views || 'No views'}
                                     </span>
                                 </ItemButton>
+                                &nbsp;&bull;&nbsp;
+                                <ItemButton
+                                    className='item-button'
+                                    onClick={() => {
+                                        history.push(`/article/${article.title_id}#comments`)
+                                    }}>
+                                    <i className='fa fa-comments'></i>
+                                    &nbsp;
+                                    <span className='text-small'>
+                                        {article.comments_count||''}
+                                    </span>
+                                </ItemButton>
                                 {
                                     article.user.is_auth_user &&
                                         <React.Fragment>

@@ -3,13 +3,15 @@ import articleService from './article-service'
 import profileService from './profile-service'
 import searchService from './search-service'
 import avatarService from "./avatar-service"
+import commentService from "./comment-service"
 
 export default {
     authService,
     articleService,
     profileService,
     searchService,
-    avatarService
+    avatarService,
+    commentService
 }
 
 export {
@@ -17,5 +19,6 @@ export {
     articleService,
     profileService,
     searchService,
-    avatarService
+    avatarService,
+    commentService
 }

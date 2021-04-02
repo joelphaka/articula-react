@@ -1,6 +1,6 @@
 import React from 'react'
-import { Field } from 'formik'
-import _ from 'lodash'
+import { Field } from "formik";
+import _ from "lodash";
 
 function Input (props) {
     const { name, className, errorClass, onChange, isTextarea, children, ...rest } = props
