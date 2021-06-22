@@ -68,8 +68,8 @@ function CommentList(props) {
 
             const comment = await (
                 isForReplies
-                ? commentService.replyToComment({comment_id: id, content: commentText})
-                : commentService.createComment({article_id: id, content: commentText})
+                    ? commentService.replyToComment({comment_id: id, content: commentText})
+                    : commentService.createComment({article_id: id, content: commentText})
             );
             if (isForReplies) isFunction(onReply) && onReply(comment);
             else isFunction(onCreate) && onCreate(comment);
@@ -134,16 +134,16 @@ function CommentList(props) {
                         id='comment-input'
                         className='form-control'
                         style={{height: '40px'}}
-                        disabled={isPostingComment||isFetching}
+                        disabled={isPostingComment || isFetching}
                         placeholder="Type"
                         maxLength="255"
                         value={commentText}
                         onChange={({target}) => setCommentText(target.value)}
-                        >
+                    >
                     </textarea>
                     <div className="input-group-append align-items-start">
                         <button
-                            disabled={(!commentText && !commentText.trim().length)||isPostingComment||isFetching}
+                            disabled={(!commentText.trim().trim('\n')) || isPostingComment || isFetching}
                             className="btn btn-primary"
                             type="button"
                             onClick={postComment}>

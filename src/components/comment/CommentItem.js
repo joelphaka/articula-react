@@ -23,11 +23,12 @@ function CommentItem(props) {
         onDelete,
         onClick
     } = props;
-    const [comment, setComment] = useStateIfMounted(() => item);
+    const [comment, setComment] = useStateIfMounted(item);
     const [isRepliesVisible, setRepliesVisible] = useStateIfMounted(() => showReplies);
     const [isEditOpen, setEditOpen] = useStateIfMounted(() => false);
     const [isEditing, setEditing] = useStateIfMounted(() => false);
     const [isDeleting, setDeleting] = useStateIfMounted(() => false);
+    const [isLiking, setLiking] = useStateIfMounted(() => false);
     const [commentText, setCommentText] = useStateIfMounted(comment.content);
     const [error, setError] = useStateIfMounted();
 
@@ -71,12 +72,17 @@ function CommentItem(props) {
             setEditing(false);
         }
     }
-    const handleReply = () => setComment(v => Object({
-        ...v,
-        ...Object({
-            replies_count: !!v.replies_count ? (v.replies_count + 1) : 1
-        })
-    }));
+    const handleReply = () => {
+        const data = Object({
+            ...comment,
+            ...Object({
+                replies_count: !!comment.replies_count ? (comment.replies_count + 1) : 1
+            })
+        });
+
+        setComment(data);
+        //isFunction(onReply) && onReply(data);
+    }
 
     const handleReplyDelete = () => setComment(v => Object({
         ...v,
@@ -85,16 +91,38 @@ function CommentItem(props) {
         })
     }));
 
+    const handleLike = async () => {
+        if (isLiking) return;
+
+        try {
+            setError(null);
+            setLiking(true);
+
+            const data = await (
+                !comment.is_liked
+                    ? commentService.likeComment(comment.id)
+                    : commentService.unlikeComment(comment.id)
+            );
+
+            setComment(data);
+            isFunction(onUpdate) && onUpdate(data);
+        } catch (e) {
+            setError(formatError(e))
+        } finally {
+            setLiking(false);
+        }
+    };
+
     async function handleDelete() {
         try {
             setError(null);
             setDeleting(true);
-            //const data = await commentService.deleteComment(comment.id);
-            if (comment.id === comment.id) {
-                if (!!comment.article.comments_count) comment.article.comments_count--;
-                if (!!comment.parent_comment) comment.parent_comment.replies_count--;
+            const data = await commentService.deleteComment(comment.id);
+            if (data.id === comment.id) {
+                if (!!data.article.comments_count) data.article.comments_count--;
+                if (!!data.parent_comment) data.parent_comment.replies_count--;
 
-                isFunction(onDelete) && onDelete(comment);
+                isFunction(onDelete) && onDelete(data);
             }
         } catch (e) {
             setError(formatError(e))
@@ -109,7 +137,11 @@ function CommentItem(props) {
             onClick={() => isFunction(onClick) && onClick(comment)}>
             <div className="card-body p-2 px-3">
                 <div className='d-flex align-items-center flex-grow-0'>
-                    <UserAvatar user={comment.user} size={40}/>
+                    <UserAvatar
+                        user={comment.user}
+                        size={40}
+                        onClick={() => history.push(`/u/${comment.user.username}`)}
+                    />
                     <div className='d-flex flex-column justify-content-center ml-2'>
                         <Link
                             to={`/u/${comment.user.username}`}
@@ -132,7 +164,7 @@ function CommentItem(props) {
                             <div className='ml-1 text-small'>An error occurred</div>
                         </div>
                     }
-                    {(isEditing || isDeleting) && <Spinner className='mt-2' size={24} thickness={15}/>}
+                    {(isEditing || isDeleting || isLiking) && <Spinner className='mt-2' size={24} thickness={15}/>}
                 </div>
                 {
                     !(isEditing || isDeleting) &&
@@ -150,6 +182,14 @@ function CommentItem(props) {
                             <i className='fa fa-comments'></i>
                             &nbsp;
                             {comment.replies_count||''}
+                        </ItemButton>
+                        <ItemButton
+                            className='item-button'
+                            disabled={isLiking}
+                            onClick={handleLike}>
+                            <i className='fa fa-thumbs-up'></i>
+                            &nbsp;
+                            {comment.likes_count||''}
                         </ItemButton>
                         {
                             comment.user.is_auth_user &&
@@ -171,14 +211,6 @@ function CommentItem(props) {
                     </div>
                 }
                 {
-                    /*isRepliesVisible &&
-                    <div className='flex-grow-0 ml-2'>
-                        <CommentList
-                            id={comment.id}
-                            isForReplies={true}
-                            depth={depth + 1}
-                            onReply={onReply}/>
-                    </div>*/
                     (isRepliesVisible || isEditOpen) && (
                         <React.Fragment>
                             {
@@ -210,7 +242,7 @@ function CommentItem(props) {
                                                     Close
                                                 </button>
                                                 {
-                                                    !!commentText.trim() && commentText.trim() !== comment.content &&
+                                                    !!commentText.trim().trim('\n') && commentText.trim().trim('\n') !== comment.content &&
                                                     <button
                                                         className='btn btn-primary ml-1 text-small'
                                                         style={{padding: '0.125rem 0.25rem'}}

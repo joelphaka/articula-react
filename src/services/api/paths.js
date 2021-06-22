@@ -12,6 +12,9 @@ export const API_COMMENTS               = API_URL + '/comments';
 export const API_LIKES_LIKE_ARTICLE     = API_URL + '/likes/like/article';
 export const API_LIKES_UNLIKE_ARTICLE   = API_URL + '/likes/unlike/article';
 
+export const API_LIKES_LIKE_COMMENT     = API_URL + '/likes/like/comment';
+export const API_LIKES_UNLIKE_COMMENT   = API_URL + '/likes/unlike/comment';
+
 export const API_PROFILE                = API_URL + '/profile';
 export const API_TIMELINE_ARTICLES      = API_URL + '/timeline/articles';
 export const API_TIMELINE_COMMENTS      = API_URL + '/timeline/comments';
