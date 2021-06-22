@@ -11,6 +11,7 @@ function InfiniteScroll(props) {
         dataLength,
         hasMore,
         loader,
+        showLoader = true,
         children,
         ...rest
     } = props;
@@ -39,7 +40,7 @@ function InfiniteScroll(props) {
                 }
             </div>
             {
-                isFetching && (
+                isFetching && showLoader && (
                     loader ||
                     <ListLoader/>
                 )

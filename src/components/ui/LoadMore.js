@@ -1,37 +1,54 @@
-/***
+import React from "react";
+import {isFunction} from 'lodash'
+import ListLoader from "./ListLoader";
+import useCurrentEffect from "../../hooks/useCurrentEffect";
 
+function LoadMore(props) {
+    const {
+        onLoadMore,
+        isFetching,
+        initialLoad=false,
+        dataLength,
+        hasMore,
+        loader,
+        showLoader = true,
+        buttonStyle,
+        buttonClass = 'btn btn-primary btn-sm mx-auto d-block',
+        buttonText = 'Load more',
+        children,
+        ...rest
+    } = props;
 
+    useCurrentEffect((isCurrent) => {
+        if (initialLoad && isCurrent() && hasMore && !isFetching && isFunction(onLoadMore)) onLoadMore();
+    }, [])
 
- const [articles, setArticles] = useState([]);
- const [page, setPage] = useState(1);
- const [lastPage, setLastPage] = useState(1);
- const [hasMore, setHasMore] = useState(false);
- const [isFetching, setLoading] = useState(false);
+    return (
+        <React.Fragment>
+            <div {...rest}>
+                {isFunction(children) ? children() : children}
+                {
+                    hasMore && !isFetching && isFunction(onLoadMore) &&
+                    <div>
+                        <button
+                            type='button'
+                            style={buttonStyle}
+                            className={buttonClass}
+                            onClick={onLoadMore}>
+                            {buttonText}
+                        </button>
+                    </div>
+                }
+            </div>
+            {
+                isFetching && showLoader && (
+                    loader ||
+                    <ListLoader/>
+                )
+            }
+        </React.Fragment>
 
- useEffect(() => {
-        console.log(page)
-        loadArticles();
-    }, [page])
-
-
-async function loadArticles() {
-    try {
-        setLoading(true);
-        const {data, meta} = await articleService.fetchArticles({page});
-        if (page <= 1) {
-            setArticles(data);
-        } else {
-            setArticles([...articles, ...data.filter(article => (
-                articles.some(a => a.id !== article.id)
-            ))])
-        }
-
-        setLastPage(meta.last_page);
-        setHasMore(meta.last_page > page);
-    } catch (e) {
-        console.log(formatError(e));
-    } finally {
-        setLoading(false);
-    }
+    )
 }
- **/
+
+export default LoadMore;

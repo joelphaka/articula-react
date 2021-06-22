@@ -18,6 +18,7 @@ import useIsMounted from "../../hooks/useIsMounted";
 import useCurrentEffect from "../../hooks/useCurrentEffect";
 import useStateIfMounted from "../../hooks/useStateIfMounted";
 import {showErrorDialog} from "../../store/uiReducer";
+import CommentList from "../../components/comment/CommentList";
 
 
 function ArticlePage() {
@@ -62,36 +63,33 @@ function ArticlePage() {
         if (deletedArticle) history.replace('/')
     }, [deletedArticle])
 
-    useComponentDidUpdate(() => deleterError && dispatch(showErrorDialog()), [deleterError])
+    useComponentDidUpdate(() => deleterError && dispatch(showErrorDialog()), [deleterError]);
 
     const handleInView = inView => (isMounted() && inView) && dispatch(incrementArticleViews(id));
 
     return (
         <div className="container py-5">
-            <div className="row">
-                <div className='col-md-12'>
-                    {
-                        (isFetchingArticle || isDeleting || deletedArticle)
-                            ? (
-                                <Spinner className='position-absolute center-relative'/>
-                            ) : (
-                                <React.Fragment>
-                                    {
-                                        error ? (
-                                            <React.Fragment>
-                                                {
-                                                    error.status === StatusCodes.NOT_FOUND
-                                                        ? <Redirect to='/not-found'/>
-                                                        : (
-                                                            <div className='alert alert-danger'>
-                                                                An error occurred
-                                                            </div>
-                                                        )
-                                                }
-                                            </React.Fragment>
-                                        ) : (
-                                            article &&
-                                            <React.Fragment>
+            {
+                (isFetchingArticle || isDeleting || deletedArticle)
+                    ? <Spinner className='position-absolute center-relative'/>
+                    : (
+                        <React.Fragment>
+                            {
+                                error ? (
+                                    <div className="row">
+                                        <div className="col-md-12">
+                                            {
+                                                error.status === StatusCodes.NOT_FOUND
+                                                    ? <Redirect to='/not-found'/>
+                                                    : <div className='alert alert-danger'>An error occurred</div>
+                                            }
+                                        </div>
+                                    </div>
+                                ) : (
+                                    article &&
+                                    <React.Fragment>
+                                        <div className="row">
+                                            <div className='col-md-12'>
                                                 {
                                                     (isCreated || isUpdated) && (
                                                         <div className='alert alert-success alert-dismissible'>
@@ -122,14 +120,21 @@ function ArticlePage() {
                                                 }
                                                 {!article.has_cover_photo && <div className='mt-5'></div>}
                                                 <pre className='white-space-pre-wrap'>{article.content}</pre>
-                                            </React.Fragment>
-                                        )
-                                    }
-                                </React.Fragment>
-                            )
-                    }
-                </div>
-            </div>
+                                            </div>
+
+                                        </div>
+                                        <div id='comments' className="row mt-5">
+                                            <div className="col-md-12">
+                                                <h5 className="mt-4 mb-2">Comments ({article.comments_count})</h5>
+                                                <CommentList id={article.id} isForReplies={false}/>
+                                            </div>
+                                        </div>
+                                    </React.Fragment>
+                                )
+                            }
+                        </React.Fragment>
+                    )
+            }
         </div>
     );
 }
